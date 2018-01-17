@@ -67,18 +67,18 @@ def main():
 
 	    # Save summarized analysis results in .txt file
 	    f = open(analysis_path + str(sub) + "analysis_summary.txt", 'w')
-	    f.write('Miscs CF : ' + str(np.nanmean(alphas[:, cf_ind])) + "\n")
-	    f.write('Miscs Amp: ' + str(np.nanmean(alphas[:, am_ind])) + "\n")
-	    f.write('Miscs BW : '+ str(np.nanmean(alphas[:, bw_ind])) + "\n")
-	    f.write('Beta CF : ' + str(np.nanmean(alphas[:, cf_ind])) + "\n")
-	    f.write('Beta Amp: ' + str(np.nanmean(alphas[:, am_ind])) + "\n")
-	    f.write('Beta BW : ' + str(np.nanmean(alphas[:, bw_ind])) + "\n")
+	    f.write('Miscs CF : ' + str(np.nanmean(miscs[:, cf_ind])) + "\n")
+	    f.write('Miscs Amp: ' + str(np.nanmean(miscs[:, am_ind])) + "\n")
+	    f.write('Miscs BW : '+ str(np.nanmean(miscs[:, bw_ind])) + "\n")
+	    f.write('Beta CF : ' + str(np.nanmean(betas[:, cf_ind])) + "\n")
+	    f.write('Beta Amp: ' + str(np.nanmean(betas[:, am_ind])) + "\n")
+	    f.write('Beta BW : ' + str(np.nanmean(betas[:, bw_ind])) + "\n")
 	    f.write('Alpha CF : ' + str(np.nanmean(alphas[:, cf_ind])) + "\n")
 	    f.write('Alpha Amp: ' + str(np.nanmean(alphas[:, am_ind])) + "\n")
 	    f.write('Alpha BW : ' + str(np.nanmean(alphas[:, bw_ind])) + "\n")
-	    f.write('Theta CF : ' + str(np.nanmean(alphas[:, cf_ind])) + "\n")
-	    f.write('Theta Amp: ' + str(np.nanmean(alphas[:, am_ind])) + "\n")
-	    f.write('Theta BW : ' + str(np.nanmean(alphas[:, bw_ind])) + "\n")
+	    f.write('Theta CF : ' + str(np.nanmean(thetas[:, cf_ind])) + "\n")
+	    f.write('Theta Amp: ' + str(np.nanmean(thetas[:, am_ind])) + "\n")
+	    f.write('Theta BW : ' + str(np.nanmean(thetas[:, bw_ind])) + "\n")
 	    f.close
 
 		# Save raw analysis data in .txt file
