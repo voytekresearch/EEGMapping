@@ -66,7 +66,7 @@ def main():
 
 
 	    # Save summarized analysis results in .txt file
-	    f = open(analysis_path + str(sub) + "analysis_summary", 'w')
+	    f = open(analysis_path + str(sub) + "analysis_summary.txt", 'w')
 	    f.write('Miscs CF : ' + str(np.nanmean(alphas[:, cf_ind])) + "\n")
 	    f.write('Miscs Amp: ' + str(np.nanmean(alphas[:, am_ind])) + "\n")
 	    f.write('Miscs BW : '+ str(np.nanmean(alphas[:, bw_ind])) + "\n")
