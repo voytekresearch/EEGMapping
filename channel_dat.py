@@ -9,8 +9,8 @@ import os
 # Set up paths
 
 # This base path will need updating
-base_path = '/Users/luyandamdanda/Research/EEG_Dat'
-save_path = '/Users/luyandamdanda/Research/Results'
+base_path = 'C:\\Users\\abc\\EEG-MNE'
+save_path = 'C:\\Users\\abc\\EEG-MNE'
 subj_dat_fname = '3502_resampled.set'
 
 # This should stay the same
