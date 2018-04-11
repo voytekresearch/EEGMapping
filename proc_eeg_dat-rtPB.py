@@ -14,11 +14,11 @@ from pathlib import Path
 # Set up paths
 
 # This base path will need updating
-base_path = 'E:/PBA_Data/'
+base_path = 'C:/Users/abc/Documents/Research/rtPB'
 save_path = 'C:/Users/abc/Documents/Research'
 
 # These should stay the same
-subj_dat_num = list(range(3001, 3014))
+subj_dat_num = list(range(3501, 3516))
 
 def main():
 
@@ -27,10 +27,10 @@ def main():
     fg = FOOOFGroup(verbose=False)
 
     # Save out a settings file
-    fg.save(file_name='PBA_fooof_group_settings', file_path = save_path, save_settings=True)
+    fg.save(file_name='rtRB_fooof_group_settings', file_path = save_path, save_settings=True)
 
     # event dictionary to ensure "Start Block" and "End Block"
-    ev_dict = {'Rest_Start': 1001., 'Rest_End': 1002}
+    ev_dict = {'Start Block': 1001., 'End Block': 1002., 'Start Labelling Block':1003., 'End Labelling Block':1004}
 
     # START LOOP
     for sub in subj_dat_num:
@@ -49,7 +49,7 @@ def main():
 
 
             events = mne.find_events(eeg_dat)
-            event_id = {'Rest_Start':1001}
+            event_id = {'Start Labelling Block':1003}
 
 
 
@@ -65,18 +65,18 @@ def main():
             #ar = LocalAutoRejectCV()
             #epochs = ar.fit_transform(epochs)
 
-            # Calculate PSD
-            psd, freqs = mne.time_frequency.psd_welch(epochs, fmin=1., fmax=50., n_fft=1000, n_overlap=500)
+            # Calculate PSDs
+            psds, freqs = mne.time_frequency.psd_welch(epochs, fmin=2., fmax=50., n_fft=1000, n_overlap=500)
 
 
             # FOOOFing Data
-            fooof_psd = np.squeeze(psd[0,:,:])
+            fooof_psds = np.squeeze(psds[0,:,:])
 
             # Setting frequency range
             freq_range = [2, 40]
 
             # Run FOOOF across a group of PSDs
-            fg.fit(freqs, fooof_psd, freq_range)
+            fg.fit(freqs, fooof_psds, freq_range)
 
             fg.save(file_name= str(sub) + 'fooof_group_results', file_path= save_path, save_results=True)
             print('Subject Saved')
