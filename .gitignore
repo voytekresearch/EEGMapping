@@ -1,0 +1,11 @@
+# Ignore ipynb checkpoint files
+**.ipynb_checkpoints**
+
+# Ignore compiled python files
+*.pyc
+
+# Ignore mac directory files
+.DS_Store*
+
+# Ignore PSD data files
+/data/psds/
