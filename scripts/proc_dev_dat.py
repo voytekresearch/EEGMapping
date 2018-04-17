@@ -1,18 +1,27 @@
-"""Process EEG data from the EEGDev dataset, saving out PSDs from resting EEG data."""
+"""Process EEG data from the EEGDev dataset, saving out PSDs from resting EEG data.
+
+Notes
+-----
+- This script can / should be updated to save out FOOOF objects, rather than extracted slope data.
+"""
 
 import os
 import csv
-import numpy as np
 import mne
+import numpy as np
 
-from slf.eeg import fit_fooof_lst, fit_fooof_3d, get_slopes
+from FOOOF import FOOOFGroup
+
 from slf.core.db import SLFDB
 from slf.core.io import save_pickle
 
 ####################################################################################################
 ####################################################################################################
 
-# ???
+# Settings
+F_RANGE = [3, 35]
+
+# Set subjects to skip
 SKIP_SUBJS = ['A00054488', 'A00054866', 'A00055623', 'A00056716', 'A00056733']
 #SKIP_SUBJS = []
 
@@ -170,16 +179,24 @@ def main():
         print('\n\n\nFOOOFING DATA FOR SUBJ: ', str(cur_subj), '\n\n\n')
 
         # Fit FOOOF to PSDs averaged across rest epochs
-        fres_eo_avg = fit_fooof_lst(eo_freqs, eo_avg_psds)
-        sls_eo_avg = get_slopes(fres_eo_avg)
-        fres_ec_avg = fit_fooof_lst(ec_freqs, ec_avg_psds)
-        sls_ec_avg = get_slopes(fres_ec_avg)
+        fg = FOOOFGroup(peak_width_limits=[1, 8], max_n_peaks=6)
+        fg.fit(eo_freqs, eo_avg_psds, F_RANGE)
+        sls_eo_avg = fg.get_all_data('background_params', 'slope')
+        fg.fit(ec_freqs, ec_avg_psds, F_RANGE)
+        sls_ec_avg = fg.get_all_data('background_params', 'slope')
 
         # Fit FOOOF to PSDs from each epoch
-        fres_eo = fit_fooof_3d(eo_freqs, eo_psds)
-        sls_eo = [get_slopes(lst) for lst in fres_eo]
-        fres_ec = fit_fooof_3d(ec_freqs, ec_psds)
-        sls_ec = [get_slopes(lst) for lst in fres_ec]
+        eo_fgs = []
+        for ep_psds in eo_psds:
+            fg.fit(eo_freqs, ep_psds, F_RANGE)
+            eo_fgs.append(fg.copy())
+        sls_eo = [fg.get_all_data('background_params', 'slope') for fg in eo_fgs]
+
+        ec_fgs = []
+        for ep_psds in ec_psds:
+            fg.fit(ec_freqs, ep_psds, F_RANGE)
+            ec_fgs.append(fg.copy())
+        sls_ec = [fg.get_all_data('background_params', 'slope') for fg in ec_fgs]
 
         # Collect data together
         subj_dat = {
@@ -190,7 +207,7 @@ def main():
             'sls_ec' : sls_ec
         }
 
-        # Save out FOOOF data
+        # Save out slope data
         f_name = str(cur_subj) + '_fooof.p'
         save_pickle(subj_dat, f_name, db.fooof_path)
 
