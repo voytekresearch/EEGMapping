@@ -10,7 +10,7 @@ import csv
 import mne
 import numpy as np
 
-from FOOOF import FOOOFGroup
+from fooof import FOOOFGroup
 
 from slf.core.db import SLFDB
 from slf.core.io import save_pickle
