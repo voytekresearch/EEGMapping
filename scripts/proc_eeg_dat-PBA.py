@@ -14,11 +14,11 @@ from pathlib import Path
 # Set up paths
 
 # This base path will need updating
-base_path = 'E:\\PBA_Data'
-save_path = 'C:\\Users\\abc\\Documents\\Research'
+base_path = 'D:\\abc\\Documents\\Research\\PBA_Data'
+save_path = 'D:\\abc\\Documents\\Research\\Results'
 
 # These should stay the same
-subj_dat_num = list(range(3001, 3014))
+subj_dat_num = list(range(3001, 3015))
 
 def main():
 
@@ -82,6 +82,7 @@ def main():
             print('Subject Saved')
         else:
             print('Current Subject' + str(sub)+ ' does not exist')
-
+            print(path_check)
+    print('Pre-processing Complete')
 if __name__ == "__main__":
     main()
