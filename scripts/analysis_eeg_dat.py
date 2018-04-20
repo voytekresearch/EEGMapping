@@ -6,7 +6,7 @@ import numpy as np
 import fnmatch
 from fooof import FOOOFGroup
 from fooof.analysis import *
-from autoreject import LocalAutoRejectCV
+#from autoreject import LocalAutoRejectCV
 from pathlib import Path
 
 ####################################################################################################
@@ -15,11 +15,12 @@ from pathlib import Path
 
 # Set up paths
 # This results and analysis path will need updating
-results_path = '/Users/luyandamdanda/Documents/Research/Results'
-analysis_path = '/Users/luyandamdanda/Documents/Research/Analysis'
+results_path = 'D:\\abc\\Documents\\Research\\Results'
 
 # These should stay the same
-subj_dat_num = list(range(3502, 3516))
+subj_dat_num1 =list(range(3001, 3015))
+subj_dat_num2 = list(range(3502, 3516))
+all_subj = subj_dat_num1 + subj_dat_num2
 
 def main():
 
@@ -94,10 +95,10 @@ def main():
 
 
 			# Save out matrices
-			np.save('theta_group.npy', group_cube_results_theta)
-			np.save('alpha_group.npy', group_cube_results_alpha)
-			np.save('beta_group.npy', group_cube_results_beta)
-			np.save('misc_group.npy', group_cube_results_misc)
+			np.save('..\\data\\theta_group.npy', group_cube_results_theta)
+			np.save('..\\data\\alpha_group.npy', group_cube_results_alpha)
+			np.save('..\\data\\beta_group.npy', group_cube_results_beta)
+			np.save('..\\data\\misc_group.npy', group_cube_results_misc)
 
 			print("File SAVED")
 		else:
