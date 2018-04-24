@@ -31,7 +31,7 @@ def main():
 	n_subjects = len(f_names)
 
 	#number of channels
-	n_channels = 64;
+	n_channels = 64
 
 	# Set up indexes for accessing data, for convenience
 	cf_ind, am_ind, bw_ind = 0, 1, 2

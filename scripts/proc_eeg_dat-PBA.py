@@ -24,7 +24,7 @@ def main():
 
     # Initialize fg
     # TODO: add any settings we want to ue
-    fg = FOOOFGroup(verbose=False)
+    fg = FOOOFGroup(verbose=False, peak_width_limits=[1, 6], min_peak_amplitude=0.075, max_n_peaks=6, peak_threshold=1)
 
     # Save out a settings file
     fg.save(file_name='PBA_fooof_group_settings', file_path = save_path, save_settings=True)
@@ -66,14 +66,14 @@ def main():
             #epochs = ar.fit_transform(epochs)
 
             # Calculate PSD
-            psd, freqs = mne.time_frequency.psd_welch(epochs, fmin=1., fmax=50., n_fft=1000, n_overlap=500)
+            psd, freqs = mne.time_frequency.psd_welch(epochs, fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
 
 
             # FOOOFing Data
             fooof_psd = np.squeeze(psd[0,:,:])
 
             # Setting frequency range
-            freq_range = [2, 40]
+            freq_range = [3, 32]
 
             # Run FOOOF across a group of PSDs
             fg.fit(freqs, fooof_psd, freq_range)
