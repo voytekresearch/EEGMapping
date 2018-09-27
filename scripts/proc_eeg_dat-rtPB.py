@@ -9,18 +9,45 @@ from pathlib import Path
 
 ####################################################################################################
 ####################################################################################################
+## SETTINGS ##
 
+## Processing Options ##
+RUN_ICA = True
+RUN_AUTOREJECT = True
 
-# Set up paths
-
-# This base path will need updating
+## Paths ##
+# can be changed if needed #
 base_path = 'D:\\abc\\Documents\\Research\\rtPB_Data'
 save_path = 'D:\\abc\\Documents\\Research\\Results'
 trial_save_path = 'D:\\abc\\Documents\\Research\\Results\\Trial_Results'
 rest_save_path = 'D:\\abc\\Documents\\Research\\Results\\Rest_Results'
 
-# These should stay the same
+##  Subject Numbers ##
+# should remain the same, but can be changed if needed #
 subj_dat_num = list(range(3503, 3516))
+
+## Event Dictionary ##
+EV_DICT = {
+# Recording Blocks
+'Filt Labelling': 1000,
+'Thresh Labelling Block': 1001,
+
+# Instruction Blocks
+'Start Labelling Block':2000,
+'End Labelling Block': 2001,
+
+# Rest Blocks 
+'Start Block':3000,
+'End Block':3001,
+
+# Trial Markers
+'Label_Peak_filt': 4000,
+'Label_Trough_filt':4001,
+'Markers0':4002,
+'Markers1' :4002,
+'MissTrial':4003,
+'HitTrial':4004
+}
 
 def main():
 
@@ -30,29 +57,6 @@ def main():
 
     # Save out a settings file
     fg.save(file_name='rtRB_fooof_group_settings', file_path = save_path, save_settings=True)
-
-    # event dictionary to ensure "Start Block" and "End Block"
-    ev_dict = {
-    # Recording Blocks
-    'Filt Labelling': 1000,
-    'Thresh Labelling Block': 1001,
-    
-    # Instruction Blocks
-    'Start Labelling Block':2000,
-    'End Labelling Block': 2001,
-    
-    # Rest Blocks 
-    'Start Block':3000,
-    'End Block':3001,
-    
-    # Trial Markers
-    'Label_Peak_filt': 4000,
-    'Label_Trough_filt':4001,
-    'Markers0':4002,
-    'Markers1' :4002,
-    'MissTrial':4003,
-    'HitTrial':4004
-    }
 
     # START LOOP
     for sub in subj_dat_num:
@@ -64,12 +68,12 @@ def main():
         path_check = Path(full_path)
         if path_check.is_file():
             eeg_dat = mne.io.read_raw_eeglab(full_path, event_id_func=None, preload=True)
-            evs = mne.io.eeglab.read_events_eeglab(full_path, ev_dict)
+            evs = mne.io.eeglab.read_events_eeglab(full_path, EV_DICT)
 
             new_evs = np.empty(shape=(0, 3))
             #for ev_code in [2000, 3000]:
             for ev_label in ['Start Labelling Block', 'Start Block']:
-                ev_code = ev_dict[ev_label]
+                ev_code = EV_DICT[ev_label]
                 temp = evs[evs[:, 2] == ev_code]
                 new_evs = np.vstack([new_evs, temp])
 

@@ -9,18 +9,53 @@ from pathlib import Path
 
 ####################################################################################################
 ####################################################################################################
+## SETTINGS ##
 
+## Processing Options ##
+RUN_ICA = True
+RUN_AUTOREJECT = True
 
-# Set up paths
-
-# This base path will need updating
+## Paths ##
+# can be changed if needed #
 base_path = 'D:\\abc\\Documents\\Research\\PBA_Data'
 save_path = 'D:\\abc\\Documents\\Research\\Results'
-trial_save_path = 'D:\\abc\\Documents\\Research\\Results\\Trial_Results'
 rest_save_path = 'D:\\abc\\Documents\\Research\\Results\\Rest_Results'
 
-# These should stay the same
+##  Subject Numbers ##
+# should remain the same, but can be changed if needed #
 subj_dat_num = list(range(3001, 3015))
+
+## Event Dictionary ##
+EV_DICT = {
+# Recording Blocks
+'Recording_Start': 1000,
+'Recording_End': 1001,
+
+# Instruction Blocks
+'Instructions_Start':2000,
+'Instructions_End': 2001,
+
+# Rest Blocks 
+'Rest_Start':3000,
+'Rest_End':3001,
+
+# Threshold Blocks
+'Thresh_Block_Start':4000,
+'Thresh_Block_End': 4001,
+
+# Experiment Blocks
+'Exp_Block_Start':5000,
+'Exp_Block_End': 5001,
+
+# Trial Markers
+'Con_{}_Loc_{}': 6000,
+'Fix_On':6001,
+'Lines_On':6002,
+'Flash':6003,
+'Catch_Trail': 6004,
+'Saw':6005,
+'Missed':6006
+}
 
 def main():
 
@@ -30,37 +65,7 @@ def main():
     # Save out a settings file
     fg.save(file_name='PBA_fooof_group_settings', file_path = save_path, save_settings=True)
 
-    # event dictionary to ensure "Start Block" and "End Block"
-    ev_dict = {
-    # Recording Blocks
-    'Recording_Start': 1000,
-    'Recording_End': 1001,
     
-    # Instruction Blocks
-    'Instructions_Start':2000,
-    'Instructions_End': 2001,
-    
-    # Rest Blocks 
-    'Rest_Start':3000,
-    'Rest_End':3001,
-    
-    # Threshold Blocks
-    'Thresh_Block_Start':4000,
-    'Thresh_Block_End': 4001,
-    
-    # Experiment Blocks
-    'Exp_Block_Start':5000,
-    'Exp_Block_End': 5001,
-    
-    # Trial Markers
-    'Con_{}_Loc_{}': 6000,
-    'Fix_On':6001,
-    'Lines_On':6002,
-    'Flash':6003,
-    'Catch_Trail': 6004,
-    'Saw':6005,
-    'Missed':6006
-    }
 
     # START LOOP
     for sub in subj_dat_num:
@@ -72,12 +77,12 @@ def main():
         path_check = Path(full_path)
         if path_check.is_file():
             eeg_dat = mne.io.read_raw_eeglab(full_path, event_id_func=None, preload=True)
-            evs = mne.io.eeglab.read_events_eeglab(full_path, ev_dict)
+            evs = mne.io.eeglab.read_events_eeglab(full_path, EV_DICT)
             
             new_evs = np.empty(shape=(0, 3))
             #for ev_code in [3000, 5000]:
             for ev_label in ['Rest_Start', 'Exp_Block_Start']:
-                ev_code = ev_dict[ev_label]
+                ev_code = EV_DICT[ev_label]
                 temp = evs[evs[:, 2] == ev_code]
                 new_evs = np.vstack([new_evs, temp])
             
