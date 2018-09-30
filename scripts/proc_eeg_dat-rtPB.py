@@ -81,25 +81,71 @@ def main():
             # set EEG average reference
             eeg_dat.set_eeg_reference()
 
+            ## PRE-PROCESSING: ICA
+            if RUN_ICA:
+
+                # ICA settings
+                method = 'fastica'
+                n_components = 0.99
+                random_state = 47
+                reject = {'eeg': 20e-4}
+
+                # Initialize ICA object
+                ica = ICA(n_components=n_components, method=method, random_state=random_state)
+
+                # High-pass filter data for running ICA
+                eeg_dat.filter(l_freq=1., h_freq=None, fir_design='firwin');
+
+                # Fit ICA
+                ica.fit(eeg_dat, reject=reject)
+
+                # Find components to drop, based on correlation with EOG channels
+                drop_inds = []
+                for chi in EOG_CHS:
+                    inds, scores = ica.find_bads_eog(eeg_dat, ch_name=chi, threshold=2.5,
+                                                     l_freq=1, h_freq=10, verbose=False)
+                    drop_inds.extend(inds)
+                drop_inds = list(set(drop_inds))
+
+                # Set which components to drop, and collect record of this
+                ica.exclude = drop_inds
+                dropped_components[s_ind, 0:len(drop_inds)] = drop_inds
+
+                # Save out ICA solution
+                ica.save(pjoin(RES_PATH, 'ICA', subj_label + '-ica.fif'))
+
+                # Apply ICA to data
+                eeg_dat = ica.apply(eeg_dat);
+
 
             events = mne.find_events(eeg_dat)
-            rest_event_id = {'Start Labelling Block':2000}
-            trial_event_id = {'Start Block':3000}
+            rest_event_id = {'Rest_Start':3000}
+            trial_event_id = {'Exp_Block_Start':5000}
 
-
+            epochs = mne.Epochs(eeg_dat, events=events, tmin = 5, tmax = 125,
+                            baseline = None, preload=True)
             rest_epochs = mne.Epochs(eeg_dat, events=events, event_id=rest_event_id, tmin = 5, tmax = 125,
                             baseline = None, preload=True)
             trial_epochs = mne.Epochs(eeg_dat, events=events, event_id=trial_event_id, tmin = 5, tmax = 125,
                             baseline = None, preload=True)
 
+            ## PRE-PROCESSING: AUTO-REJECT
+            if RUN_AUTOREJECT:
+                # Initialize and run autoreject across epochs
+                ar = AutoReject(n_jobs=4, verbose=False)
+                epochs, rej_log = ar.fit_transform(epochs, True)
+
+                # Drop same trials from filtered data
+                rest_epochs.drop(rej_log.bad_epochs)
+                trial_epochs.drop(rej_log.bad_epochs)
+
+                # Collect list of dropped trials
+                dropped_trials[s_ind, 0:sum(rej_log.bad_epochs)] = np.where(rej_log.bad_epochs)[0]
+
             # Set montage
             chs = mne.channels.read_montage('standard_1020', rest_epochs.ch_names[:-1])
             rest_epochs.set_montage(chs)
             trial_epochs.set_montage(chs)
-
-            # Use autoreject to get trial indices to drop
-            #ar = LocalAutoRejectCV()
-            #epochs = ar.fit_transform(epochs)
 
             # Calculate PSDs
             rest_psds, rest_freqs = mne.time_frequency.psd_welch(rest_epochs, fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
