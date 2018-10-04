@@ -6,7 +6,6 @@ import numpy as np
 import fnmatch
 from fooof import FOOOFGroup
 from fooof.analysis import *
-#from autoreject import LocalAutoRejectCV
 from pathlib import Path
 
 ####################################################################################################
@@ -53,20 +52,15 @@ cf_ind, am_ind, bw_ind = 0, 1, 2
 n_feats = 3
 
 # Define bands of interest
-theta_band = [2, 7]
-alpha_band = [7, 14]
-beta_band = [15, 30]
+bands = {'theta': [2,7],
+			'alpha': [8,14],
+			'beta': [15,30]}
 
 def main():
-
-	# GET LIST OF FILES - OUTDATED 
-	#rest_f_names = fnmatch.filter(os.listdir(rest_results_path), '*fooof_group_results?.json')
-	#trial_f_names = fnmatch.filter(os.listdir(trial_results_path), '*fooof_group_results?.json')
-
-	# Initialize 3D group arrays
-	thetas = np.zeros(shape=[n_subjects, num_blocks, n_channels, n_feats])
-	alphas = np.zeros(shape=[n_subjects, num_blocks, n_channels, n_feats])
-	betas = np.zeros(shape=[n_subjects, num_blocks, n_channels, n_feats])
+	#Create dictionary to store results
+	results = {}
+	for band_name in bands.keys():
+		results[band_name] = np.zeros(shape=[n_subjects, num_blocks, n_channels, n_feats])
 
 	# START LOOP
 	# DATASET: PBA 
@@ -82,30 +76,19 @@ def main():
 			if path_check.is_file():
 				fg.load(file_name=subj_file, file_path=results_path)
 			if not fg.group_results:
-				print('Current Subject Results: ' + str(sub_num) + " failed to load")
+				print('Current Subject Results: ' + str(sub_num) + " block:" + str(block) + " failed to load")
 			else:
-				print('Current Subject Results: ' +  str(sub_num) +" successfully loaded")
-
-
+				print('Current Subject Results: ' +  str(sub_num) + " block" + str(block) + " successfully loaded")
 
 			for ind, res in enumerate(fg):
-				thetas[ind, block, :,  :] = get_band_peak(res.peak_params, theta_band, True)
-				alphas[ind, block, :,  :] = get_band_peak(res.peak_params, alpha_band, True)
-				betas[ind, block, :,  :] = get_band_peak(res.peak_params, beta_band, True)
+				for band_label, band_range in bands.items():
+					results[band_label][sub_index, block, ind,  :] = get_band_peak(res.peak_params, band_range, True)
 
-			#alphas[sub_ind, block, :, :] = get_band_peak_group()
-			#betas[sub_ind, block, :, :] = get_band_peak_group()
-
-			# Save out matrices
-			# Update to save out files using DATASET and STATE
-			np.save('..\\data\\' + DATASET + "_" + STATE + "_thetas.npy" , thetas)
-			np.save('..\\data\\' + DATASET + "_" + STATE + "_alphas.npy", alphas)
-			np.save('..\\data\\' + DATASET + "_" + STATE + "_betas.npy", betas)
-
-			print("File SAVED")
-		else:
-			print('Current Subject' + str(sub_num)+ ' does not exist')
-
+			
+	# Save out matrices
+	# Update to save out files using DATASET and STATE
+	np.save('..\\data\\analysis\\' + DATASET + "_" + STATE + "_results.npy" , results)
+	print("File SAVED")
 
 if __name__ == "__main__":
 	main()
