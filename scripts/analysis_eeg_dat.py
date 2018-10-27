@@ -7,11 +7,12 @@ import fnmatch
 from fooof import FOOOFGroup
 from fooof.analysis import *
 from pathlib import Path
+import pickle
 
 ####################################################################################################
 ## SETTINGS ##
 
-DATASET = 'rtPB'
+DATASET = 'PBA'
 STATE = 'rest'
 
 ####################################################################################################
@@ -87,7 +88,9 @@ def main():
 			
 	# Save out matrices
 	# Update to save out files using DATASET and STATE
-	np.save('..\\data\\analysis\\' + DATASET + "_" + STATE + "_results.npy" , results)
+	output = open('..\\data\\analysis\\' + DATASET + "_" + STATE + "_results.pkl" ,'wb')
+	pickle.dump(results, output)
+	output.close()
 	print("File SAVED")
 
 if __name__ == "__main__":
