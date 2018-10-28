@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from os.path import join as pjoin
 
 import numpy as np
 
@@ -17,8 +18,8 @@ from autoreject import AutoReject
 ## SETTINGS ##
 
 ## Set Group to Run ##
+#GROUP = 'rtPB'
 GROUP = 'rtPB'
-#GROUP = 'PBA'
 
 ## Processing Options ##
 RUN_ICA = True
@@ -28,7 +29,7 @@ RUN_AUTOREJECT = False
 EOG_CHS = ['Fp1', 'Fp2']
 
 ## Paths ##
-BASE_PATH = 'D:\\abc\\Documents\\Research\\rtPB_Data'
+BASE_PATH = 'D:\\abc\\Documents\\Research\\' +  GROUP + '_Data'
 SAVE_PATH = 'D:\\abc\\Documents\\Research\\Results'
 ICA_PATH = SAVE_PATH + "\\ICA"
 REJ_PATH = SAVE_PATH + "\\REJ"
@@ -66,6 +67,8 @@ if GROUP == 'rtPB':
         'MissTrial':4003,
         'HitTrial':4004
         }
+    REST_EVENT_ID = {'Start Labelling Block':2000}
+    TRIAL_EVENT_ID = {'Start Block':3000}
 
     BLOCK_EVS = ['Start Labelling Block', 'Start Block']
 
@@ -105,7 +108,8 @@ if GROUP == 'PBA':
         'Saw':6005,
         'Missed':6006
         }
-
+    REST_EVENT_ID = {'Rest_Start':3000}
+    TRIAL_EVENT_ID = {'Exp_Block_Start':5000}
     BLOCK_EVS = ['Rest_Start', 'Exp_Block_Start']
 
 ###################################################################################################
@@ -176,23 +180,21 @@ def main():
 
                 # Set which components to drop, and collect record of this
                 ica.exclude = drop_inds
-                dropped_components[s_ind, 0:len(drop_inds)] = drop_inds
+                #dropped_components[s_ind, 0:len(drop_inds)] = drop_inds
 
                 # Save out ICA solution
-                ica.save(pjoin(ICA_PATH, 'ICA', subj_label + '-ica.fif'))
+                ica.save(pjoin(ICA_PATH, str(sub) + '-ica.fif'))
 
                 # Apply ICA to data
                 eeg_dat = ica.apply(eeg_dat);
 
             ## EPOCH BLOCKS
-            events = mne.find_events(eeg_dat)
-            rest_event_id = {'Rest_Start':3000}
-            trial_event_id = {'Exp_Block_Start':5000}
+            events = mne.find_events(eeg_dat)            
 
             #epochs = mne.Epochs(eeg_dat, events=events, tmin=5, tmax=125, baseline=None, preload=True)
-            rest_epochs = mne.Epochs(eeg_dat, events=events, event_id=rest_event_id,
+            rest_epochs = mne.Epochs(eeg_dat, events=events, event_id=REST_EVENT_ID,
                                      tmin=5, tmax=125, baseline=None, preload=True)
-            trial_epochs = mne.Epochs(eeg_dat, events=events, event_id=trial_event_id,
+            trial_epochs = mne.Epochs(eeg_dat, events=events, event_id=TRIAL_EVENT_ID,
                                       tmin=5, tmax=125, baseline=None, preload=True)
 
             ## PRE-PROCESSING: AUTO-REJECT
