@@ -12,7 +12,7 @@ import pickle
 ####################################################################################################
 ## SETTINGS ##
 
-DATASET = 'PBA'
+DATASET = 'rtPB'
 STATE = 'rest'
 
 ####################################################################################################
@@ -59,6 +59,7 @@ bands = {'theta': [2,7],
 
 def main():
 	#Create dictionary to store results
+	slope_results = np.zeros(shape=[n_subjects, num_blocks, n_channels, 2])
 	results = {}
 	for band_name in bands.keys():
 		results[band_name] = np.zeros(shape=[n_subjects, num_blocks, n_channels, n_feats])
@@ -82,12 +83,17 @@ def main():
 				print('Current Subject Results: ' +  str(sub_num) + " block" + str(block) + " successfully loaded")
 
 			for ind, res in enumerate(fg):
+				slope_results[sub_index, block, ind, :] = res.background_params
 				for band_label, band_range in bands.items():
 					results[band_label][sub_index, block, ind,  :] = get_band_peak(res.peak_params, band_range, True)
 
 			
 	# Save out matrices
 	# Update to save out files using DATASET and STATE
+	slope_output = open('..\\data\\analysis\\' + DATASET + "_" + STATE + "_slope_results.pkl" ,'wb')
+	pickle.dump(slope_results, slope_output)
+	slope_output.close()
+
 	output = open('..\\data\\analysis\\' + DATASET + "_" + STATE + "_results.pkl" ,'wb')
 	pickle.dump(results, output)
 	output.close()
