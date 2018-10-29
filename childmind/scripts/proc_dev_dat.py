@@ -30,6 +30,9 @@ SKIP_SUBJS = ['A00054488', 'A00054866', 'A00055623', 'A00056716', 'A00056733']
 
 def main():
 
+    # Set MNE verbosity level
+    mne.set_log_level(verbose=False)
+
     # Get project database objects, and list of available subjects
     db = SLFDB()
     subjs = db.check_subjs()

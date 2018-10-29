@@ -1,4 +1,4 @@
-"""   """
+"""Utility functions for EEGMapping project."""
 
 from scipy.stats import pearsonr
 from itertools import combinations, product
