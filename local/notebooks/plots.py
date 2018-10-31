@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from scipy.stats import ttest_1samp, ttest_ind, sem, pearsonr
 from sklearn.preprocessing import scale
 from utilities import *
+import mne
+from matplotlib import cm
+
 
 ###################################################################################################
 ###################################################################################################
@@ -38,7 +41,7 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
     ax.set_xlabel('State')
     ax.set_ylabel(feature)
 
-    save_figure(SAVE_FIGS, title +"_" + feature + "_across_state")
+    save_figure(save_fig, title +"_" + feature + "_across_state")
 
 
 def make_across_blocks(curr_data, dataset, pos_ch_cluster_index, SAVE_FIGS):
@@ -93,7 +96,7 @@ def make_slope_across_blocks(curr_data, dataset, pos_ch_cluster_index, SAVE_FIGS
 
 
 
-def make_topos(datasets, state):
+def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS = True):
     """
     datasets: list of 4d arrays (?)
     """
@@ -110,9 +113,9 @@ def make_topos(datasets, state):
             for ind, dataset in enumerate(datasets):
                 topo_dat[ind, :] =  avg_for_topo(dataset, band, feat_in)
 
-            plot_topo(topo_dat[0, :], title='D1' + state + band + feat)
-            plot_topo(topo_dat[0, :], title='D2' + state + band + feat)
-            plot_topo(np.mean(topo_dat, 0), title='Both' + state + band + feat)
+            plot_topo(topo_dat[0, :], title='D1' + state + band + feat, eeg_dat_info=eeg_dat_info)
+            plot_topo(topo_dat[0, :], title='D2' + state + band + feat, eeg_dat_info=eeg_dat_info)
+            plot_topo(np.mean(topo_dat, 0), title='Both' + state + band + feat, eeg_dat_info=eeg_dat_info)
             
             #medial to lateral
             plt.figure()
@@ -126,7 +129,7 @@ def make_topos(datasets, state):
 
 
 
-def plot_topo(data, title):
+def plot_topo(data, title, eeg_dat_info):
     """
     data: 1d array, len number of channels
     title: string
@@ -136,13 +139,13 @@ def plot_topo(data, title):
     data[inds] = np.nanmean(data)
     
     fig, ax = plt.subplots()
-    mne.viz.plot_topomap(data, eeg_dat.info, cmap=cm.viridis, contours=0, axes=ax)
+    mne.viz.plot_topomap(data, eeg_dat_info, cmap=cm.viridis, contours=0, axes=ax)
     fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
     fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
 
 
 
-def make_slope_topos(datasets,state):
+def make_slope_topos(datasets,state, eeg_dat_info, pos, SAVE_FIGS = True):
 
     feats = ["Offset", "Slope"]
 
@@ -153,11 +156,11 @@ def make_slope_topos(datasets,state):
         for ind, dataset in enumerate(datasets):
             topo_dat[ind, :] =  avg_for_slope_topo(dataset, feat_in)
         print (np.mean(topo_dat, axis = 0))
-        plot_topo(topo_dat[0, :], title='D1' + state + feat)
+        plot_topo(topo_dat[0, :], title='D1' + state + feat, eeg_dat_info=eeg_dat_info)
 
-        plot_topo(topo_dat[0, :], title='D2'+ state + feat)
+        plot_topo(topo_dat[0, :], title='D2'+ state + feat, eeg_dat_info=eeg_dat_info)
 
-        plot_topo(np.mean(topo_dat, 0), title='Both_' + state +feat)
+        plot_topo(np.mean(topo_dat, 0), title='Both_' + state +feat, eeg_dat_info=eeg_dat_info)
 
         #medial to lateral
         plt.figure()
