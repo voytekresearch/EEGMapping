@@ -48,12 +48,12 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
     save_figure(save_fig, title + "_" + feature + "_across_state")
 
 
-def plot_across_blocks(means, stds, name):
+def plot_across_blocks(means, stds, name, save_fig=True):
 
         plt.figure()
         plt.errorbar(range(len(means)), means, yerr=stds, xerr=None, fmt='.',
                      markersize=22, capsize=10, elinewidth=2, capthick=2)
-        save_figure(SAVE_FIGS, name)
+        save_figure(save_fig, name)
 
 
 def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
