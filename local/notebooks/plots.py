@@ -45,15 +45,26 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
     ax.set_xlabel('State')
     ax.set_ylabel(feature)
 
+    # Set the top and right side frame & ticks off
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+    # Set linewidth of remaining spines
+    ax.spines['left'].set_linewidth(5)
+    ax.spines['bottom'].set_linewidth(5)
+
     save_figure(save_fig, title + "_" + feature + "_across_state")
 
 
 def plot_across_blocks(means, stds, name, save_fig=True):
+    """   """
 
-        plt.figure()
-        plt.errorbar(range(len(means)), means, yerr=stds, xerr=None, fmt='.',
-                     markersize=22, capsize=10, elinewidth=2, capthick=2)
-        save_figure(save_fig, name)
+    plt.figure()
+    plt.errorbar(range(len(means)), means, yerr=stds, xerr=None, fmt='.',
+                 markersize=22, capsize=10, elinewidth=2, capthick=2)
+    save_figure(save_fig, name)
 
 
 def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
@@ -104,7 +115,7 @@ def plot_topo(data, title, eeg_dat_info):
     fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
 
 
-def make_slope_topos(datasets,state, eeg_dat_info, pos, SAVE_FIGS = True):
+def make_slope_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
 
     feats = ["Offset", "Slope"]
 
@@ -115,21 +126,35 @@ def make_slope_topos(datasets,state, eeg_dat_info, pos, SAVE_FIGS = True):
         for ind, dataset in enumerate(datasets):
             topo_dat[ind, :] =  avg_for_slope_topo(dataset, feat_in)
 
-        print (np.mean(topo_dat, axis = 0))
+        #print(np.mean(topo_dat, axis = 0))
+
+        # Calculate the average data across groups
+        avg_dat = np.mean(topo_dat, 0)
+
+        ## Plot topographies - within and across datasets
         plot_topo(topo_dat[0, :], title='D1' + state + feat, eeg_dat_info=eeg_dat_info)
-
         plot_topo(topo_dat[0, :], title='D2'+ state + feat, eeg_dat_info=eeg_dat_info)
+        plot_topo(avg_dat, title='Both_' + state +feat, eeg_dat_info=eeg_dat_info)
 
-        plot_topo(np.mean(topo_dat, 0), title='Both_' + state +feat, eeg_dat_info=eeg_dat_info)
+        ## Plot scatter plots - across datasets for Ant-Pos & Med-Lat
+        plot_space_scatter(avg_dat, pos[:, 0], 'Both_' + state + feat + "_medial_to_anterior_plot")
+        plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + state + feat + "_posterior_to_anterior_plot")
 
-        #medial to lateral
-        plt.figure()
-        plt.scatter(abs(pos[:, 0]), np.mean(topo_dat,0))
-        pearsonr(abs(pos[:, 0]), np.mean(topo_dat,0))
-        save_figure(SAVE_FIGS, 'Both_' + state + feat + "_medial_to_anterior_plot")
 
-        # posterior to anterior
-        plt.figure()
-        plt.scatter(pos[:, 1], np.mean(topo_dat,0))
-        pearsonr(pos[:, 1], np.mean(topo_dat,0))
-        save_figure(SAVE_FIGS, 'Both_' + state + feat + "_posterior_to_anterior_plot")
+def plot_space_scatter(dat, pos, label, save_fig=True):
+    """   """
+
+    plt.figure()
+    plt.scatter(pos, dat)
+
+    # Set the top and right side frame & ticks off
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+    # Set linewidth of remaining spines
+    ax.spines['left'].set_linewidth(5)
+    ax.spines['bottom'].set_linewidth(5)
+
+    save_figure(save_fig, label)
