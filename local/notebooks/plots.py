@@ -61,8 +61,13 @@ def make_across_blocks(curr_data, dataset, pos_ch_cluster_index, SAVE_FIGS):
             demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis = 2)
             demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
             
+            #plt.figure()
+            means = np.nanmean(demeaned_curr_data_matrix, axis = 0)
+            stds = np.std(demeaned_curr_data_matrix, axis = 0)
             plt.figure()
-            plt.plot(demeaned_curr_data_matrix.T, ".");
+            plt.errorbar(range(0, demeaned_curr_data_matrix.shape[1]), means, yerr=stds, xerr=None, fmt='.',
+                 		 markersize=22, capsize=10, elinewidth=2, capthick=2)
+            #plt.plot(demeaned_curr_data_matrix.T, ".");
             save_figure(SAVE_FIGS, curr_data + "_" + band + "_" + feat + "_across_blocks_plot")
 
 
@@ -90,8 +95,11 @@ def make_slope_across_blocks(curr_data, dataset, pos_ch_cluster_index, SAVE_FIGS
         corr = pearsonr(avg_across_subjs, range(0,dataset.shape[1]))
         print(str(corr) + " for the dataset: " + curr_data + "_" + feat)
 
+        means = np.nanmean(demeaned_curr_data_matrix, axis = 0)
+        stds = np.std(demeaned_curr_data_matrix, axis = 0)
         plt.figure()
-        plt.plot(demeaned_curr_data_matrix.T, ".");
+        plt.errorbar(range(0, demeaned_curr_data_matrix.shape[1]), means, yerr=stds, xerr=None, fmt='.',
+                 		 markersize=22, capsize=10, elinewidth=2, capthick=2)
         save_figure(SAVE_FIGS, curr_data + "_" + feat + "_across_blocks_plot")
 
 
@@ -120,11 +128,13 @@ def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS = True):
             #medial to lateral
             plt.figure()
             plt.scatter(abs(pos[:, 0]), np.mean(topo_dat,0))
-            save_figure(SAVE_FIGS, 'Both_' + state + band +  feat + "_medial_to_anterior_plot")
+            pearsonr(abs(pos[:, 0]), np.mean(topo_dat,0))
+            save_figure(SAVE_FIGS, 'Both_' + state + band +  feat + "_medial_to_lateral_plot")
         
             # posterior to anterior
             plt.figure()
             plt.scatter(pos[:, 1], np.mean(topo_dat,0))
+            pearsonr(pos[:, 1], np.mean(topo_dat,0))
             save_figure(SAVE_FIGS, 'Both_' + state + band + feat + "_posterior_to_anterior_plot")
 
 
@@ -165,9 +175,11 @@ def make_slope_topos(datasets,state, eeg_dat_info, pos, SAVE_FIGS = True):
         #medial to lateral
         plt.figure()
         plt.scatter(abs(pos[:, 0]), np.mean(topo_dat,0))
+        pearsonr(abs(pos[:, 0]), np.mean(topo_dat,0))
         save_figure(SAVE_FIGS, 'Both_' + state + feat + "_medial_to_anterior_plot")
         
         # posterior to anterior
         plt.figure()
         plt.scatter(pos[:, 1], np.mean(topo_dat,0))
+        pearsonr(pos[:, 1], np.mean(topo_dat,0))
         save_figure(SAVE_FIGS, 'Both_' + state + feat + "_posterior_to_anterior_plot")
