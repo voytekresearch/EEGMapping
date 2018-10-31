@@ -99,7 +99,7 @@ def run_dict_across_blocks(label, dataset, ch_indices, SAVE_FIGS):
     for band in bands:
 
         curr_data = dataset[band]
-        run_array_across_blocks(label + '_band_', curr_data, ch_indices, feat_labels=feat_labels, SAVE_FIGS=SAVE_FIGS)
+        run_array_across_blocks(label + '_' + band + '_', curr_data, ch_indices, feat_labels=feat_labels, SAVE_FIGS=SAVE_FIGS)
 
 
 def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
