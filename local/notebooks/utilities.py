@@ -4,11 +4,13 @@ import warnings
 
 import numpy as np
 from sklearn.preprocessing import scale
+from scipy.stats import pearsonr
 
 from plots import plot_across_blocks
 
 ###################################################################################################
 ###################################################################################################
+time_corr_dict = dict()
 
 def mask_nan_array(dat):
     return ~np.isnan(dat)
@@ -118,6 +120,8 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
         demeaned_curr_masked_data = np.take(dataset, indices=ch_indices,  axis=2)
         demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis=2)
         demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
+
+        time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]), np.nanmedian(demeaned_curr_data_matrix, 0))
 
         means = np.nanmean(demeaned_curr_data_matrix, axis=0)
         stds = np.std(demeaned_curr_data_matrix, axis=0)

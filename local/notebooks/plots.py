@@ -61,6 +61,7 @@ def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
     datasets: list of 4d arrays (?)
     """
 
+    space_corr_dict = dict()
     bands = ["alpha", "beta", "theta"]
     feats = ["CFS", "AMPS", "BWS"]
 
@@ -79,14 +80,15 @@ def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
             #medial to lateral
             plt.figure()
             plt.scatter(abs(pos[:, 0]), np.mean(topo_dat,0))
-            pearsonr(abs(pos[:, 0]), np.mean(topo_dat,0))
+            space_corr_dict['Both_' + state + '_' + band + '_' +  feat +'_' + "M_L"] = pearsonr(abs(pos[:, 0]), np.nanmedian(topo_dat,0))
             save_figure(SAVE_FIGS, 'Both_' + state + band +  feat + "_medial_to_lateral_plot")
 
             # posterior to anterior
             plt.figure()
             plt.scatter(pos[:, 1], np.mean(topo_dat,0))
-            pearsonr(pos[:, 1], np.mean(topo_dat,0))
+            space_corr_dict['Both_' + state + '_' + band + '_' +  feat + '_' + "P_A"] = pearsonr(pos[:, 1], np.nanmedian(topo_dat,0))
             save_figure(SAVE_FIGS, 'Both_' + state + band + feat + "_posterior_to_anterior_plot")
+    return space_corr_dict
 
 
 def plot_topo(data, title, eeg_dat_info):
@@ -125,11 +127,11 @@ def make_slope_topos(datasets,state, eeg_dat_info, pos, SAVE_FIGS = True):
         #medial to lateral
         plt.figure()
         plt.scatter(abs(pos[:, 0]), np.mean(topo_dat,0))
-        pearsonr(abs(pos[:, 0]), np.mean(topo_dat,0))
+        space_corr_dict['Both_' + state + feat + "M_L"] = pearsonr(abs(pos[:, 0]), np.nanmedian(topo_dat,0))
         save_figure(SAVE_FIGS, 'Both_' + state + feat + "_medial_to_anterior_plot")
 
         # posterior to anterior
         plt.figure()
         plt.scatter(pos[:, 1], np.mean(topo_dat,0))
-        pearsonr(pos[:, 1], np.mean(topo_dat,0))
+        space_corr_dict['Both_' + state +  feat + "P_A"] = pearsonr(pos[:, 1], np.nanmedian(topo_dat,0))
         save_figure(SAVE_FIGS, 'Both_' + state + feat + "_posterior_to_anterior_plot")
