@@ -5,6 +5,8 @@ import warnings
 import numpy as np
 from sklearn.preprocessing import scale
 
+from plots import plot_across_blocks
+
 ###################################################################################################
 ###################################################################################################
 
@@ -97,7 +99,7 @@ def run_dict_across_blocks(label, dataset, ch_indices, SAVE_FIGS):
     for band in bands:
 
         curr_data = dataset[band]
-        run_array_across_blocks(label, dataset, ch_indices, feat_labels=feat_labels, SAVE_FIGS)
+        run_array_across_blocks(label + '_' + band + '_', curr_data, ch_indices, feat_labels=feat_labels, SAVE_FIGS=SAVE_FIGS)
 
 
 def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
@@ -120,4 +122,4 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
         means = np.nanmean(demeaned_curr_data_matrix, axis=0)
         stds = np.std(demeaned_curr_data_matrix, axis=0)
 
-        plot_across_blocks(means, stds, label + "_" + band + "_" + feat + "_across_blocks_plot")
+        plot_across_blocks(means, stds, label + "_" + feat + "_across_blocks_plot")
