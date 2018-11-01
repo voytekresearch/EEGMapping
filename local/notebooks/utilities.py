@@ -1,6 +1,7 @@
 """Utilities functions for EEG-Mapping analysis."""
 
 import warnings
+from copy import deepcopy
 
 import numpy as np
 from sklearn.preprocessing import scale
@@ -8,22 +9,36 @@ from sklearn.preprocessing import scale
 ###################################################################################################
 ###################################################################################################
 
+def load_pickle(f_name):
+
+    with open(os.path.join('../data/analysis/', f_name + '.pkl'), 'rb') as pickle_file:
+        dat = pickle.load(pickle_file)
+
+    return dat
+
+
 def mask_nan_array(dat):
+
     return ~np.isnan(dat)
 
 
-def combine_groups(dataset1, dataset2):
-	bands = ["alpha", "beta", "theta"]
-	output = dict()
-	for band in bands:
-		output[band] = np.vstack([dataset1[band][:, 0, :, :], dataset2[band][:, 0, :, :]])
-	return output
+def combine_groups_dict(dataset1, dataset2):
+
+    bands = dataset1.keys()
+    output = dict()
+
+    for band in bands:
+        output[band] = np.vstack([dataset1[band][:, 0, :, :], dataset2[band][:, 0, :, :]])
+
+    return output
 
 
-def combine_slope_groups(dataset1, dataset2):
-	output = dict()
-	output = np.vstack([dataset1[:, 0, :, :], dataset2[:, 0, :, :]])
-	return output
+def combine_groups_array(dataset1, dataset2):
+
+    output = dict()
+    output = np.vstack([dataset1[:, 0, :, :], dataset2[:, 0, :, :]])
+
+    return output
 
 
 def avg_for_topo(dataset, feat_in):
@@ -58,6 +73,8 @@ def demean(dataset):
 
     dataset: 4d array, [n_subjs, n_blocks, n_chs, n_feats]
     """
+
+    dataset = deepcopy(dataset)
 
     for s_ind in range(dataset.shape[0]):
         for ch_ind in range(dataset.shape[2]):
