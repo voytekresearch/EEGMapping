@@ -56,9 +56,9 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, SAVE_FIGS=True):
         plot_space_scatter(avg_dat, pos[:, 0], 'Both_' + label + feat + "_medial_to_anterior_plot")
         plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + label + feat + "_posterior_to_anterior_plot")
 
-        space_corr_dict['Both_' + state + '_' + band + '_' +  feat +'_' + "M_L"] = \
+        space_corr_dict['Both_' + label + '_' + band + '_' +  feat +'_' + "M_L"] = \
             pearsonr(abs(pos[:, 0]), np.nanmedian(topo_dat,0))
-        space_corr_dict['Both_' + state + '_' + band + '_' +  feat + '_' + "P_A"] = \
+        space_corr_dict['Both_' + label + '_' + band + '_' +  feat + '_' + "P_A"] = \
             pearsonr(pos[:, 1], np.nanmedian(topo_dat,0))
 
         return space_corr_dict
