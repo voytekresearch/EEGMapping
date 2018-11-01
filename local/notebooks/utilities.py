@@ -18,6 +18,13 @@ def load_pickle(f_name):
 
     return dat
 
+def comb_dicts(dicts):
+    """
+    dicts: list of dict
+    """
+
+    return {key: val for dd in dicts for key, val in dd.items()}
+
 
 def mask_nan_array(dat):
 

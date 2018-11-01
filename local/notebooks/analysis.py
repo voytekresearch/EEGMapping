@@ -1,7 +1,7 @@
 """Analysis functions for EEGMapping project."""
 
 import numpy as np
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, ttest_ind
 
 from plots import *
 from utilities import *
@@ -17,10 +17,14 @@ def run_state_dict(datasets, label, mask, save_fig):
     bands = datasets[0].keys()
     feats = ["CFS", "AMPS", "BWS"]
 
+    corr_dicts = []
+
     for band in bands:
 
         curr_data = [dataset[band] for dataset in datasets]
-        run_state_array(curr_data, label + '_' + band, mask, feats, save_fig)
+        corr_dicts.append(run_state_array(curr_data, label + '_' + band, mask, feats, save_fig))
+
+    return comb_dicts(corr_dicts)
 
 
 def run_state_array(datasets, label, mask, feats, save_fig=True):
@@ -28,9 +32,11 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
     datasets: list of 4d array
     """
 
-    for feat_in, feat in enumerate(feats):
-        outputs = []
+    state_ttest_dict = dict()
 
+    for feat_in, feat in enumerate(feats):
+
+        outputs = []
         for dataset in datasets:
 
             # Masking, if requested
@@ -45,8 +51,13 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
             out_data = dataset[:, :, feat_in]
             outputs.append(out_data)
 
-        plot_comp(label + "_" + feat, feat, outputs[0], outputs[1], save_fig=save_fig,
-                  save_name=label + "_" + feat + "_across_state")
+        name = label + "_" + feat
+        state_ttest_dict[name] = ttest_ind(outputs[0], outputs[1])
+
+        plot_comp(name, feat, outputs[0], outputs[1], save_fig=save_fig,
+                  save_name=name + "_across_state")
+
+    return state_ttest_dict
 
 
 def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
@@ -65,7 +76,7 @@ def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
         corr_dicts.append(make_topos_array(cur_data, label + '_' + band,
                           eeg_dat_info, pos, feats, save_fig))
 
-    space_corr_dict = {key: val for dd in corr_dicts for key, val in dd.items()}
+    space_corr_dict = comb_dicts(corr_dicts)
 
     return space_corr_dict
 
@@ -132,7 +143,9 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
     feat_labels:
     SAVE_FIGS:
     """
+
     time_corr_dict = dict()
+
     for feat_in, feat in enumerate(feat_labels):
 
         dataset = demean(dataset)
@@ -147,4 +160,5 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
         stds = np.std(demeaned_curr_data_matrix, axis=0)
 
         plot_across_blocks(means, stds, label + "_" + feat + "_across_blocks_plot")
+
     return time_corr_dict
