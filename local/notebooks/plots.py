@@ -110,7 +110,7 @@ def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
     cb1 = colorbar.ColorbarBase(plt.gca(), cmap=cmap,
                                 norm=norm, orientation='vertical')
 
-    save_figure(save_fig, label)
+    save_figure(save_fig, label + '_cb')
 
 
 def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
