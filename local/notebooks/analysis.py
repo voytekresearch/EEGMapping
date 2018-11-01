@@ -90,7 +90,7 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
     feat_labels:
     SAVE_FIGS:
     """
-
+    time_corr_dict = dict()
     for feat_in, feat in enumerate(feat_labels):
 
         dataset = demean(dataset)
@@ -105,3 +105,4 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
         stds = np.std(demeaned_curr_data_matrix, axis=0)
 
         plot_across_blocks(means, stds, label + "_" + feat + "_across_blocks_plot")
+    return time_corr_dict
