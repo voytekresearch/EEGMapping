@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm
+from matplotlib import cm, colors, colorbar
 
 from scipy.stats import ttest_1samp, ttest_ind, sem, pearsonr
 
@@ -83,13 +83,34 @@ def plot_topo(data, title, eeg_dat_info, save_fig=True):
     inds = np.where(np.isnan(data))
     data[inds] = np.nanmean(data)
 
+    vbuffer = 0.1 * (data.max() - data.min())
+    vmin, vmax,  = data.min() - vbuffer, data.max() + vbuffer
+
     fig, ax = plt.subplots()
-    mne.viz.plot_topomap(data, eeg_dat_info, cmap=cm.viridis, contours=0, axes=ax)
+    mne.viz.plot_topomap(data, eeg_dat_info, vmin=vmin, vmax=vmax,
+                         cmap=cm.viridis, contours=0, axes=ax)
+
+    plot_topo_colorbar(vmin, vmax, title, save_fig)
 
     # This is saved differently because of MNE quirks
     if save_fig:
         fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
         fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
+
+
+def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
+
+    # Create a colorbar for the topography plots
+    fig = plt.figure(figsize=(2, 3))
+    ax1 = fig.add_axes([0.9, 0.25, 0.15, 0.9])
+
+    cmap = cm.viridis
+    norm = colors.Normalize(vmin=vmin, vmax=vmax)
+
+    cb1 = colorbar.ColorbarBase(plt.gca(), cmap=cmap,
+                                norm=norm, orientation='vertical')
+
+    save_figure(save_fig, label)
 
 
 def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
