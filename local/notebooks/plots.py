@@ -10,6 +10,8 @@ from scipy.stats import ttest_1samp, ttest_ind, sem, pearsonr
 
 import mne
 
+from fooof.core.funcs import gaussian_function, expo_nk_function
+
 from utilities import *
 
 ###################################################################################################
@@ -107,8 +109,99 @@ def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
 
     save_figure(save_fig, label)
 
-##
-##
+def plot_oscillations(alphas, save_fig=False, save_name=None):
+    """Plot a group of (flattened) oscillation definitions.
+
+    Note: plot taken & adapated from EEGFOOOF.
+    """
+
+    n_subjs = alphas.shape[0]
+
+    # Initialize figure
+    fig, ax = plt.subplots(figsize=[6, 6])
+
+    # Get frequency axis (x-axis)
+    fs = np.arange(4, 18, 0.1)
+
+    # Create the oscillation model from parameters
+    osc_psds = np.empty(shape=[n_subjs, len(fs)])
+    for ind, alpha in enumerate(alphas):
+        osc_psds[ind, :] = gaussian_function(fs, *alphas[ind, :])
+
+    # Plot each individual subject
+    for ind in range(n_subjs):
+        ax.plot(fs, osc_psds[ind, :], alpha=0.3, linewidth=1.5)
+
+    # Plot the average across all subjects
+    avg = np.nanmean(osc_psds, 0)
+    ax.plot(fs, avg, 'k', linewidth=3)
+
+    ax.set_ylim([0, 2.2])
+
+    ax.set_xlabel('Frequency')
+    ax.set_ylabel('Power')
+
+    # Set the top and right side frame & ticks off
+    _set_lr_spines(ax, 2)
+    _set_tick_sizes(ax)
+    _set_label_sizes(ax)
+
+    save_figure(save_fig, save_name)
+
+def plot_background(bgs, control_offset=False, save_fig=False, save_name=None):
+    """Plot background components, comparing between groups.
+
+    Note: Copied & adapted from EEGFOOOF.
+    """
+
+    n_subjs = bgs.shape[0]
+
+    # Set offset to be zero across all PSDs
+    tbgs = np.copy(bgs)
+    if control_offset:
+        tbgs[:, 0] = 1
+
+    fig, ax = plt.subplots(figsize=[8, 6])
+
+    # Get frequency axis (x-axis)
+    fs = np.arange(1, 35, 0.1)
+
+    # Create the background model from parameters
+    bg_psds = np.empty(shape=[n_subjs, len(fs)])
+    for ind, bg in enumerate(tbgs):
+        bg_psds[ind, :] = expo_nk_function(fs, *tbgs[ind, :])
+
+    # Drop any zero lines
+    del_inds = []
+    for ind, bgp in enumerate(bg_psds):
+        if sum(bgp) == 0:
+            del_inds.append(ind)
+    bg_psds = np.delete(bg_psds, del_inds, 0)
+
+    plt.ylim([-13.5, -9.5])
+
+    # Set whether to plot x-axis in log
+    plt_log = False
+    fs = np.log10(fs) if plt_log else fs
+
+    # Plot each individual subject
+    for ind in range(bg_psds.shape[0]):
+        ax.plot(fs, bg_psds[ind, :], "#0d82c1", alpha=0.25, linewidth=1.5)
+
+    plt.plot(fs, np.mean(bg_psds, 0), '#000000', linewidth=2)
+
+    ax.set_xlabel('Frequency')
+    ax.set_ylabel('Power')
+
+    _set_lr_spines(ax, 2)
+    _set_tick_sizes(ax)
+    _set_label_sizes(ax)
+
+    save_figure(save_fig, save_name)
+
+
+###################################################################################################
+###################################################################################################
 
 def _set_lr_spines(ax, lw=None):
     """   """
