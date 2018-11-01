@@ -1,7 +1,7 @@
 """Analysis functions for EEGMapping project."""
 
 import numpy as np
-from scipy.stats import pearsonr, ttest_ind, sem
+from scipy.stats import pearsonr, spearmanr, ttest_ind, sem
 
 from plots import *
 from utilities import *
@@ -106,8 +106,10 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
         plot_topo(avg_dat, title='Both_' + label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
 
         ## Plot scatter plots - across datasets for Ant-Pos & Med-Lat
-        plot_space_scatter(avg_dat, pos[:, 0], 'Both_' + label + feat + "_medial_to_anterior_plot", save_fig)
-        plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + label + feat + "_posterior_to_anterior_plot", save_fig)
+        plot_space_scatter(avg_dat, abs(pos[:, 0]), 'Both_' + label + feat + "_medial_to_lateral_plot",
+                           xlabel='Medial -> Lateral' , ylabel=feat, save_fig=save_fig)
+        plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + label + feat + "_posterior_to_anterior_plot",
+                           xlabel='Posterior -> Anterior' , ylabel=feat, save_fig=save_fig)
 
         space_corr_dict['Both_' + label + '_' +  feat +'_' + "M_L"] = \
             pearsonr(abs(pos[:, 0]), np.nanmedian(topo_dat,0))
@@ -117,31 +119,36 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
     return space_corr_dict
 
 
-def run_dict_across_blocks(label, dataset, ch_indices, SAVE_FIGS):
+def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
     """
     label: str
     dataset: dict
     ch_indices: list of str
-    SAVE_FIGS: bool
+    save_figs: bool
     """
 
     bands = dataset.keys()
     feat_labels = ["CFS", "AMPS", "BWS"]
 
+    time_corrs = []
+
     for band in bands:
 
         curr_data = dataset[band]
-        run_array_across_blocks(label + '_' + band + '_', curr_data, ch_indices, feat_labels=feat_labels, SAVE_FIGS=SAVE_FIGS)
+        time_corrs.append(run_array_across_blocks(label + '_' + band + '_', curr_data,
+                                                  ch_indices, feat_labels=feat_labels, save_figs=save_figs))
+
+    return comb_dicts(time_corrs)
 
 
-def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
+def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
     """Run analysis of FOOOF features across blocks.
 
     label:
     dataset:
     ch_indices
     feat_labels:
-    SAVE_FIGS:
+    save_figs:
     """
 
     time_corr_dict = dict()
@@ -156,11 +163,12 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
 
         time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]), np.nanmedian(demeaned_curr_data_matrix, 0))
 
-        means = np.nanmean(demeaned_curr_data_matrix, axis=0)
+        #avgs = np.nanmedian(demeaned_curr_data_matrix, axis=0)
+        avgs = np.nanmean(demeaned_curr_data_matrix, axis=0)
 
         #yerrs = np.std(demeaned_curr_data_matrix, axis=0)
         yerrs = sem(demeaned_curr_data_matrix, axis=0)
 
-        plot_across_blocks(means, yerrs, label + "_" + feat + "_across_blocks_plot")
+        plot_across_blocks(avgs, yerrs, feat, label + "_" + feat + "_across_blocks_plot", save_figs)
 
     return time_corr_dict

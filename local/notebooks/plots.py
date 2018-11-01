@@ -42,24 +42,34 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
 
     # Titles & Labels
     ax.set_title(title)
-    ax.set_xlabel('State')
     ax.set_ylabel(feature)
 
     _set_lr_spines(ax, 4)
+    _set_tick_sizes(ax)
+    _set_label_sizes(ax)
 
     save_figure(save_fig, title + "_" + feature + "_across_state")
 
 
-def plot_across_blocks(means, yerrs, name, save_fig=True):
+def plot_across_blocks(avgs, yerrs, ylabel, label, save_fig=True):
     """   """
 
+    block_nums = [ii + 1 for ii in range(len(avgs))]
+
     fig, ax = plt.subplots()
-    plt.errorbar(range(len(means)), means, yerr=yerrs, xerr=None, fmt='.',
+    plt.errorbar(block_nums, avgs, yerr=yerrs, xerr=None, fmt='.',
                  markersize=22, capsize=10, elinewidth=2, capthick=2)
 
-    _set_lr_spines(ax, 4)
+    # Titles & Labels
+    ax.set_title(label)
+    ax.set_xlabel('Block Number')
+    ax.set_ylabel(ylabel)
 
-    save_figure(save_fig, name)
+    _set_lr_spines(ax, 4)
+    _set_tick_sizes(ax)
+    _set_label_sizes(ax)
+
+    save_figure(save_fig, label)
 
 
 def plot_topo(data, title, eeg_dat_info, save_fig=True):
@@ -80,13 +90,20 @@ def plot_topo(data, title, eeg_dat_info, save_fig=True):
         fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
 
 
-def plot_space_scatter(dat, pos, label, save_fig=True):
+def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
     """   """
 
     fig, ax = plt.subplots()
     plt.scatter(pos, dat)
 
+    # Titles & Labels
+    ax.set_title(label)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
     _set_lr_spines(ax, 4)
+    _set_tick_sizes(ax)
+    _set_label_sizes(ax)
 
     save_figure(save_fig, label)
 
@@ -106,3 +123,16 @@ def _set_lr_spines(ax, lw=None):
     if lw:
         ax.spines['left'].set_linewidth(lw)
         ax.spines['bottom'].set_linewidth(lw)
+
+
+def _set_tick_sizes(ax, x_size=12, y_size=12):
+
+    # Set tick fontsizes
+    plt.setp(ax.get_xticklabels(), fontsize=x_size)
+    plt.setp(ax.get_yticklabels(), fontsize=y_size)
+
+def _set_label_sizes(ax, x_size=14, y_size=14):
+
+    # Set tick fontsizes
+    ax.xaxis.label.set_size(x_size)
+    ax.yaxis.label.set_size(y_size)
