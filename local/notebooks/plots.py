@@ -19,7 +19,7 @@ def save_figure(save_out, name):
 
     fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
     if save_out:
-        plt.savefig(os.path.join(fig_save_path, name + '.png'))
+        plt.savefig(os.path.join(fig_save_path, name + '.png'), bbox_inches='tight', dpi=300)
 
 
 def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
