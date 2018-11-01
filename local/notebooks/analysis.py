@@ -49,7 +49,7 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
                   save_name=label + "_" + feat + "_across_state")
 
 
-def make_topos_dict(datasets, label, eeg_dat_info, pos, SAVE_FIGS=True):
+def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
     """
     datasets: list of dict of 4d arrays
     """
@@ -63,14 +63,14 @@ def make_topos_dict(datasets, label, eeg_dat_info, pos, SAVE_FIGS=True):
 
         cur_data = [dataset[band] for dataset in datasets]
         corr_dicts.append(make_topos_array(cur_data, label + '_' + band,
-                          eeg_dat_info, pos, feats, SAVE_FIGS))
+                          eeg_dat_info, pos, feats, save_fig))
 
     space_corr_dict = {key: val for dd in corr_dicts for key, val in dd.items()}
 
     return space_corr_dict
 
 
-def make_topos_array(datasets, label, eeg_dat_info, pos, feats, SAVE_FIGS=True):
+def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
     """
     datasets: list of 4d array
     """
@@ -78,6 +78,8 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, SAVE_FIGS=True):
     space_corr_dict = dict()
 
     for feat_in, feat in enumerate(feats):
+
+        print('CURRENT FEATURE:', feat)
 
         topo_dat = np.zeros(shape=[2, 64])
 
@@ -88,20 +90,20 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, SAVE_FIGS=True):
         avg_dat = np.mean(topo_dat, 0)
 
         ## Plot topographies - within and across datasets
-        plot_topo(topo_dat[0, :], title='D1' + label + feat, eeg_dat_info=eeg_dat_info)
-        plot_topo(topo_dat[0, :], title='D2'+ label + feat, eeg_dat_info=eeg_dat_info)
-        plot_topo(avg_dat, title='Both_' + label + feat, eeg_dat_info=eeg_dat_info)
+        plot_topo(topo_dat[0, :], title='D1' + label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
+        plot_topo(topo_dat[0, :], title='D2'+ label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
+        plot_topo(avg_dat, title='Both_' + label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
 
         ## Plot scatter plots - across datasets for Ant-Pos & Med-Lat
-        plot_space_scatter(avg_dat, pos[:, 0], 'Both_' + label + feat + "_medial_to_anterior_plot")
-        plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + label + feat + "_posterior_to_anterior_plot")
+        plot_space_scatter(avg_dat, pos[:, 0], 'Both_' + label + feat + "_medial_to_anterior_plot", save_fig)
+        plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + label + feat + "_posterior_to_anterior_plot", save_fig)
 
         space_corr_dict['Both_' + label + '_' +  feat +'_' + "M_L"] = \
             pearsonr(abs(pos[:, 0]), np.nanmedian(topo_dat,0))
         space_corr_dict['Both_' + label + '_' +  feat + '_' + "P_A"] = \
             pearsonr(pos[:, 1], np.nanmedian(topo_dat,0))
 
-        return space_corr_dict
+    return space_corr_dict
 
 
 def run_dict_across_blocks(label, dataset, ch_indices, SAVE_FIGS):

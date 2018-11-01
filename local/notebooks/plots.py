@@ -67,7 +67,7 @@ def plot_across_blocks(means, stds, name, save_fig=True):
     save_figure(save_fig, name)
 
 
-def plot_topo(data, title, eeg_dat_info):
+def plot_topo(data, title, eeg_dat_info, save_fig=True):
     """
     data: 1d array, len number of channels
     title: string
@@ -80,8 +80,9 @@ def plot_topo(data, title, eeg_dat_info):
     mne.viz.plot_topomap(data, eeg_dat_info, cmap=cm.viridis, contours=0, axes=ax)
 
     # This is saved differently because of MNE quirks
-    fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
-    fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
+    if save_fig:
+        fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
+        fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
 
 
 def plot_space_scatter(dat, pos, label, save_fig=True):
