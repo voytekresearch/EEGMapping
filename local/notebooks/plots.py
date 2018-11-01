@@ -87,7 +87,7 @@ def plot_topo(data, title, eeg_dat_info):
 def plot_space_scatter(dat, pos, label, save_fig=True):
     """   """
 
-    plt.figure()
+    fig, ax = plt.subplots()
     plt.scatter(pos, dat)
 
     # Set the top and right side frame & ticks off
