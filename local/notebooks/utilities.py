@@ -1,5 +1,7 @@
 """Utilities functions for EEG-Mapping analysis."""
 
+import os
+import pickle
 import warnings
 from copy import deepcopy
 

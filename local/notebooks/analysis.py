@@ -9,6 +9,46 @@ from utilities import *
 ###################################################################################################
 ###################################################################################################
 
+def run_state_dict(datasets, label, mask, save_fig):
+    """
+    datasets: list of dict of 4d array
+    """
+
+    bands = datasets[0].keys()
+    feats = ["CFS", "AMPS", "BWS"]
+
+    for band in bands:
+
+        curr_data = [dataset[band] for dataset in datasets]
+        run_state_array(curr_data, label + '_' + band, mask, feats, save_fig)
+
+
+def run_state_array(datasets, label, mask, feats, save_fig=True):
+    """
+    datasets: list of 4d array
+    """
+
+    for feat_in, feat in enumerate(feats):
+        outputs = []
+
+        for dataset in datasets:
+
+            # Masking, if requested
+            if np.any(mask):
+                dataset = np.take(dataset, indices=mask, axis=2)
+
+            # Data still 4D (not precombined across groups), then grab first block per subject
+            if len(dataset.shape) == 4:
+                dataset = dataset[:, 0, :, :]
+
+            # Extract desired feature
+            out_data = dataset[:, :, feat_in]
+            outputs.append(out_data)
+
+        plot_comp(label + "_" + feat, feat, outputs[0], outputs[1], save_fig=save_fig,
+                  save_name=label + "_" + feat + "_across_state")
+
+
 def make_topos_dict(datasets, label, eeg_dat_info, pos, SAVE_FIGS=True):
     """
     datasets: list of dict of 4d arrays
