@@ -67,41 +67,6 @@ def plot_across_blocks(means, stds, name, save_fig=True):
     save_figure(save_fig, name)
 
 
-def make_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
-    """
-    datasets: list of 4d arrays (?)
-    """
-
-    space_corr_dict = dict()
-    bands = ["alpha", "beta", "theta"]
-    feats = ["CFS", "AMPS", "BWS"]
-
-    for band in bands:
-        for feat_in, feat in enumerate(feats):
-
-            topo_dat = np.zeros(shape=[2, 64])
-
-            for ind, dataset in enumerate(datasets):
-                topo_dat[ind, :] =  avg_for_topo(dataset, band, feat_in)
-
-            plot_topo(topo_dat[0, :], title='D1' + state + band + feat, eeg_dat_info=eeg_dat_info)
-            plot_topo(topo_dat[0, :], title='D2' + state + band + feat, eeg_dat_info=eeg_dat_info)
-            plot_topo(np.mean(topo_dat, 0), title='Both' + state + band + feat, eeg_dat_info=eeg_dat_info)
-
-            #medial to lateral
-            plt.figure()
-            plt.scatter(abs(pos[:, 0]), np.mean(topo_dat,0))
-            space_corr_dict['Both_' + state + '_' + band + '_' +  feat +'_' + "M_L"] = pearsonr(abs(pos[:, 0]), np.nanmedian(topo_dat,0))
-            save_figure(SAVE_FIGS, 'Both_' + state + band +  feat + "_medial_to_lateral_plot")
-
-            # posterior to anterior
-            plt.figure()
-            plt.scatter(pos[:, 1], np.mean(topo_dat,0))
-            space_corr_dict['Both_' + state + '_' + band + '_' +  feat + '_' + "P_A"] = pearsonr(pos[:, 1], np.nanmedian(topo_dat,0))
-            save_figure(SAVE_FIGS, 'Both_' + state + band + feat + "_posterior_to_anterior_plot")
-    return space_corr_dict
-
-
 def plot_topo(data, title, eeg_dat_info):
     """
     data: 1d array, len number of channels
@@ -113,34 +78,10 @@ def plot_topo(data, title, eeg_dat_info):
 
     fig, ax = plt.subplots()
     mne.viz.plot_topomap(data, eeg_dat_info, cmap=cm.viridis, contours=0, axes=ax)
+
+    # This is saved differently because of MNE quirks
     fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
     fig.savefig(os.path.join(fig_save_path, title + '.png'), dpi=600)
-
-
-def make_slope_topos(datasets, state, eeg_dat_info, pos, SAVE_FIGS=True):
-
-    feats = ["Offset", "Slope"]
-
-    for feat_in, feat in enumerate(feats):
-
-        topo_dat = np.zeros(shape=[2, 64])
-
-        for ind, dataset in enumerate(datasets):
-            topo_dat[ind, :] =  avg_for_slope_topo(dataset, feat_in)
-
-        #print(np.mean(topo_dat, axis = 0))
-
-        # Calculate the average data across groups
-        avg_dat = np.mean(topo_dat, 0)
-
-        ## Plot topographies - within and across datasets
-        plot_topo(topo_dat[0, :], title='D1' + state + feat, eeg_dat_info=eeg_dat_info)
-        plot_topo(topo_dat[0, :], title='D2'+ state + feat, eeg_dat_info=eeg_dat_info)
-        plot_topo(avg_dat, title='Both_' + state +feat, eeg_dat_info=eeg_dat_info)
-
-        ## Plot scatter plots - across datasets for Ant-Pos & Med-Lat
-        plot_space_scatter(avg_dat, pos[:, 0], 'Both_' + state + feat + "_medial_to_anterior_plot")
-        plot_space_scatter(avg_dat, pos[:, 1], 'Both_' + state + feat + "_posterior_to_anterior_plot")
 
 
 def plot_space_scatter(dat, pos, label, save_fig=True):

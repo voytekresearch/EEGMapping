@@ -4,13 +4,9 @@ import warnings
 
 import numpy as np
 from sklearn.preprocessing import scale
-from scipy.stats import pearsonr
-
-from plots import plot_across_blocks
 
 ###################################################################################################
 ###################################################################################################
-time_corr_dict = dict()
 
 def mask_nan_array(dat):
     return ~np.isnan(dat)
@@ -30,25 +26,13 @@ def combine_slope_groups(dataset1, dataset2):
 	return output
 
 
-def avg_for_topo(dataset, band, feat_in):
+def avg_for_topo(dataset, feat_in):
     """
     dataset: 4d array
     band: string
     feat_in: int
     """
-    feat_set =  dataset[band][:,:,:,feat_in]
-    bloc_aver_set = np.nanmean(feat_set, axis = 1)
-    bloc_aver_set = np.nanmean(bloc_aver_set, axis = 0)
 
-    return bloc_aver_set
-
-
-def avg_for_slope_topo(dataset, feat_in):
-    """
-    dataset: 4d array
-    band: string
-    feat_in: int
-    """
     feat_set =  dataset[:,:,:,feat_in]
     bloc_aver_set = np.nanmean(feat_set, axis = 1)
     bloc_aver_set = np.nanmean(bloc_aver_set, axis = 0)
@@ -85,45 +69,3 @@ def demean(dataset):
                                                              with_mean=True, axis=0, with_std=False)
 
     return dataset
-
-
-def run_dict_across_blocks(label, dataset, ch_indices, SAVE_FIGS):
-    """
-    label: str
-    dataset: dict
-    ch_indices: list of str
-    SAVE_FIGS: bool
-    """
-
-    bands = dataset.keys()
-    feat_labels = ["CFS", "AMPS", "BWS"]
-
-    for band in bands:
-
-        curr_data = dataset[band]
-        run_array_across_blocks(label + '_' + band + '_', curr_data, ch_indices, feat_labels=feat_labels, SAVE_FIGS=SAVE_FIGS)
-
-
-def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
-    """Run analysis of FOOOF features across blocks.
-    label:
-    dataset:
-    ch_indices
-    feat_labels:
-    SAVE_FIGS:
-    """
-
-    for feat_in, feat in enumerate(feat_labels):
-
-        dataset = demean(dataset)
-
-        demeaned_curr_masked_data = np.take(dataset, indices=ch_indices,  axis=2)
-        demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis=2)
-        demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
-
-        time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]), np.nanmedian(demeaned_curr_data_matrix, 0))
-
-        means = np.nanmean(demeaned_curr_data_matrix, axis=0)
-        stds = np.std(demeaned_curr_data_matrix, axis=0)
-
-        plot_across_blocks(means, stds, label + "_" + feat + "_across_blocks_plot")
