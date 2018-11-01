@@ -45,25 +45,20 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
     ax.set_xlabel('State')
     ax.set_ylabel(feature)
 
-    # Set the top and right side frame & ticks off
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-
-    # Set linewidth of remaining spines
-    ax.spines['left'].set_linewidth(5)
-    ax.spines['bottom'].set_linewidth(5)
+    _set_lr_spines(ax, 4)
 
     save_figure(save_fig, title + "_" + feature + "_across_state")
 
 
-def plot_across_blocks(means, stds, name, save_fig=True):
+def plot_across_blocks(means, yerrs, name, save_fig=True):
     """   """
 
-    plt.figure()
-    plt.errorbar(range(len(means)), means, yerr=stds, xerr=None, fmt='.',
+    fig, ax = plt.subplots()
+    plt.errorbar(range(len(means)), means, yerr=yerrs, xerr=None, fmt='.',
                  markersize=22, capsize=10, elinewidth=2, capthick=2)
+
+    _set_lr_spines(ax, 4)
+
     save_figure(save_fig, name)
 
 
@@ -91,6 +86,16 @@ def plot_space_scatter(dat, pos, label, save_fig=True):
     fig, ax = plt.subplots()
     plt.scatter(pos, dat)
 
+    _set_lr_spines(ax, 4)
+
+    save_figure(save_fig, label)
+
+##
+##
+
+def _set_lr_spines(ax, lw=None):
+    """   """
+
     # Set the top and right side frame & ticks off
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -98,7 +103,6 @@ def plot_space_scatter(dat, pos, label, save_fig=True):
     ax.yaxis.set_ticks_position('left')
 
     # Set linewidth of remaining spines
-    ax.spines['left'].set_linewidth(5)
-    ax.spines['bottom'].set_linewidth(5)
-
-    save_figure(save_fig, label)
+    if lw:
+        ax.spines['left'].set_linewidth(lw)
+        ax.spines['bottom'].set_linewidth(lw)

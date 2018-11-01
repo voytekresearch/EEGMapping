@@ -1,7 +1,7 @@
 """Analysis functions for EEGMapping project."""
 
 import numpy as np
-from scipy.stats import pearsonr, ttest_ind
+from scipy.stats import pearsonr, ttest_ind, sem
 
 from plots import *
 from utilities import *
@@ -157,8 +157,10 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, SAVE_FIGS):
         time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]), np.nanmedian(demeaned_curr_data_matrix, 0))
 
         means = np.nanmean(demeaned_curr_data_matrix, axis=0)
-        stds = np.std(demeaned_curr_data_matrix, axis=0)
 
-        plot_across_blocks(means, stds, label + "_" + feat + "_across_blocks_plot")
+        #yerrs = np.std(demeaned_curr_data_matrix, axis=0)
+        yerrs = sem(demeaned_curr_data_matrix, axis=0)
+
+        plot_across_blocks(means, yerrs, label + "_" + feat + "_across_blocks_plot")
 
     return time_corr_dict
