@@ -74,6 +74,25 @@ def plot_across_blocks(avgs, yerrs, ylabel, label, save_fig=True):
     save_figure(save_fig, label)
 
 
+def plot_corrs_boxplot(corrs, corr_labels, label, save_fig=True):
+
+    # Plot the correlations across epochs
+    fig, ax = plt.subplots(figsize=(14, 6))
+    plt.boxplot(corrs);
+
+    plt.title('Feature Correlations Between Rest Blocks', fontsize=20);
+    #plt.xlabel('Feature')
+    plt.ylabel('Correlation Value', fontsize=16);
+
+    xtickNames = plt.setp(ax, xticklabels=corr_labels)
+
+    _set_lr_spines(ax, 4)
+    _set_tick_sizes(ax, x_size=20, y_size=14)
+    _set_label_sizes(ax, 18, 18)
+
+    save_figure(save_fig, label)
+
+
 def plot_topo(data, title, eeg_dat_info, save_fig=True):
     """
     data: 1d array, len number of channels
@@ -225,7 +244,6 @@ def plot_background(bgs, control_offset=False, save_fig=False, save_name=None):
 ###################################################################################################
 
 def _set_lr_spines(ax, lw=None):
-    """   """
 
     # Set the top and right side frame & ticks off
     ax.spines['right'].set_visible(False)
@@ -245,7 +263,7 @@ def _set_tick_sizes(ax, x_size=12, y_size=12):
     plt.setp(ax.get_xticklabels(), fontsize=x_size)
     plt.setp(ax.get_yticklabels(), fontsize=y_size)
 
-def _set_label_sizes(ax, x_size=14, y_size=14):
+def _set_label_sizes(ax, x_size=16, y_size=16):
 
     # Set tick fontsizes
     ax.xaxis.label.set_size(x_size)
