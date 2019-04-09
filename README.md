@@ -19,3 +19,7 @@ Within each of 'local' and 'childmind', there are notebookd and associated scrip
     - Processing pipeline for the dataset, calculating PSDs, and fitting PSD slope
 - 02-EEGDataGroupAnalysis
     - Analysis of the group level results of the dataset.
+
+## Poster
+
+This project was presented at SfN 2018, the poster for which is availabe [here](https://www.dropbox.com/s/alwwb6ahb1wjank/MdandaEtal-SfN2018.pdf?dl=0).
