@@ -2,7 +2,6 @@
 
 import numpy as np
 from scipy.stats import pearsonr, spearmanr, ttest_ind, sem
-
 from plots import *
 from utilities import *
 
@@ -11,7 +10,11 @@ from utilities import *
 
 def run_state_dict(datasets, label, mask, save_fig):
     """
-    datasets: list of dict of 4d array
+    datasets: list of dict of 4d arrays
+    label: str
+    eeg_dat_info: str
+    pos: int
+    save_fig: boolean
     """
 
     bands = datasets[0].keys()
@@ -29,7 +32,11 @@ def run_state_dict(datasets, label, mask, save_fig):
 
 def run_state_array(datasets, label, mask, feats, save_fig=True):
     """
-    datasets: list of 4d array
+    datasets: list of dict of 4d arrays
+    label: str
+    eeg_dat_info: str
+    pos: int
+    save_fig: boolean
     """
 
     state_ttest_dict = dict()
@@ -62,7 +69,12 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
 
 def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
     """
+    Creates spatial topographical plots for given dataset
     datasets: list of dict of 4d arrays
+    label: str
+    eeg_dat_info: str
+    pos: int
+    save_fig: boolean
     """
 
     bands = datasets[0].keys()
@@ -83,7 +95,12 @@ def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
 
 def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
     """
-    datasets: list of 4d array
+    Creates an array of values associated with an FOOOF features at given positions
+    datasets: list of dict of 4d arrays
+    label: str
+    eeg_dat_info: str
+    pos: int
+    save_fig: boolean 
     """
 
     space_corr_dict = dict()
@@ -121,6 +138,7 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
 
 def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
     """
+    Run analysis of FOOOF features across blocks.
     label: str
     dataset: dict
     ch_indices: list of str
@@ -142,8 +160,8 @@ def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
 
 
 def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
-    """Run analysis of FOOOF features across blocks.
-
+    """
+    Run analysis of FOOOF features across blocks.
     label:
     dataset:
     ch_indices
