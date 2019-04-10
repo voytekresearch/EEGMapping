@@ -1,4 +1,4 @@
-    """Utilities functions for EEG-Mapping analysis."""
+"""Utilities functions for EEG-Mapping analysis."""
 
 import os
 import pickle
