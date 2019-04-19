@@ -18,8 +18,8 @@ from utilities import *
 ###################################################################################################
 
 def save_figure(save_out, name):
-    """
-    Saves plot to given location with specific name.
+    """Saves a given plot to given location with specific name.
+    
     save_out: str
     name: str
     """
@@ -29,8 +29,8 @@ def save_figure(save_out, name):
 
 
 def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
-    """
-    Plot comparison between groups, as a mean value with an errorbar.
+    """Plots the comparison between groups, as a mean value with an errorbar.
+    
     title: str
     feature: str
     dat1: 1d array
@@ -87,7 +87,7 @@ def plot_across_blocks(avgs, yerrs, ylabel, label, save_fig=True):
 
 
 def plot_corrs_boxplot(corrs, corr_labels, label, save_fig=True):
-    """Plot the correlations across epochs"""
+    """Plots the correlations across epochs"""
     fig, ax = plt.subplots(figsize=(14, 6))
     plt.boxplot(corrs);
 
@@ -105,7 +105,8 @@ def plot_corrs_boxplot(corrs, corr_labels, label, save_fig=True):
 
 
 def plot_topo(data, title, eeg_dat_info, save_fig=True):
-    """
+    """Plots the spatial topographical graphs of a given function 
+    
     data: 1d array, len number of channels
     title: str
     eeg_dat_info: MNE object
@@ -131,8 +132,8 @@ def plot_topo(data, title, eeg_dat_info, save_fig=True):
 
 
 def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
-    """
-    Create a colorbar for the topography plots
+    """Creates a colorbar for the topography plots
+    
     vmin: int
     vmax: int
     label: str
@@ -151,8 +152,8 @@ def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
 
 
 def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
-    """
-    Plot scatter graph of values across spatial positions .
+    """Plot scatter graph of values across spatial positions .
+    
     dat: 1d array
     pos: 1d array
     label: str
@@ -175,8 +176,8 @@ def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
     save_figure(save_fig, label)
 
 def plot_oscillations(alphas, save_fig=False, save_name=None):
-    """
-    Plot a group of (flattened) oscillation definitions.
+    """Plot a group of (flattened) oscillation definitions.
+    
     alphas: 1d array
     save_fig: bool
     save_name: str
@@ -216,9 +217,9 @@ def plot_oscillations(alphas, save_fig=False, save_name=None):
 
     save_figure(save_fig, save_name)
 
-def plot_background(bgs, control_offset=False, save_fig=False, save_name=None):
-    """
-    Plot background components, comparing between groups.
+def plot_aperiodic(bgs, control_offset=False, save_fig=False, save_name=None):
+    """Plots the aperiodic components, comparing between groups.
+    
     bgs: 2d array
     control_offset: bool
     save_fig: bool
@@ -238,7 +239,7 @@ def plot_background(bgs, control_offset=False, save_fig=False, save_name=None):
     # Get frequency axis (x-axis)
     fs = np.arange(1, 35, 0.1)
 
-    # Create the background model from parameters
+    # Create the aperiodic model from parameters
     bg_psds = np.empty(shape=[n_subjs, len(fs)])
     for ind, bg in enumerate(tbgs):
         bg_psds[ind, :] = expo_nk_function(fs, *tbgs[ind, :])
@@ -276,8 +277,8 @@ def plot_background(bgs, control_offset=False, save_fig=False, save_name=None):
 ###################################################################################################
 
 def _set_lr_spines(ax, lw=None):
-    """
-    Set values for spines
+    """Sets the values for spines
+    
     ax: axis obj
     lw: int
     """
@@ -294,8 +295,8 @@ def _set_lr_spines(ax, lw=None):
 
 
 def _set_tick_sizes(ax, x_size=12, y_size=12):
-    """
-    Set tick fontsizes
+    """Sets the tick sizes
+    
     ax: axis obj
     x_size: int
     y_size: int
@@ -304,7 +305,11 @@ def _set_tick_sizes(ax, x_size=12, y_size=12):
     plt.setp(ax.get_yticklabels(), fontsize=y_size)
 
 def _set_label_sizes(ax, x_size=16, y_size=16):
-
-    # Set tick fontsizes
+    """Sets the label fontsizes
+    
+    ax: axis obj
+    x_size: int
+    y_size: int
+    """
     ax.xaxis.label.set_size(x_size)
     ax.yaxis.label.set_size(y_size)

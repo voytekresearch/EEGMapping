@@ -9,7 +9,8 @@ from utilities import *
 ###################################################################################################
 
 def run_state_dict(datasets, label, mask, save_fig):
-    """
+    """Runs an analysis across state for multiple dictionaries
+    
     datasets: list of dict of 4d arrays
     label: str
     eeg_dat_info: str
@@ -31,7 +32,8 @@ def run_state_dict(datasets, label, mask, save_fig):
 
 
 def run_state_array(datasets, label, mask, feats, save_fig=True):
-    """
+    """Runs an analysis across state for multiple arrays
+    
     datasets: list of dict of 4d arrays
     label: str
     eeg_dat_info: str
@@ -68,8 +70,8 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
 
 
 def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
-    """
-    Creates spatial topographical plots for given dataset
+    """Creates spatial topographical plots for a given dataset.
+    
     datasets: list of dict of 4d arrays
     label: str
     eeg_dat_info: str
@@ -94,8 +96,8 @@ def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
 
 
 def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
-    """
-    Creates an array of values associated with an FOOOF features at given positions
+    """Creates an array of values associated with an FOOOF features at given positions
+    
     datasets: list of dict of 4d arrays
     label: str
     eeg_dat_info: str
@@ -137,8 +139,8 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
 
 
 def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
-    """
-    Run analysis of FOOOF features across blocks.
+    """Run analysis of FOOOF features across blocks.
+    
     label: str
     dataset: dict
     ch_indices: list of str
@@ -160,8 +162,8 @@ def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
 
 
 def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
-    """
-    Run analysis of FOOOF features across blocks.
+    """Run analysis of FOOOF features across blocks.
+    
     label:
     dataset:
     ch_indices
