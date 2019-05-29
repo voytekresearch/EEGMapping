@@ -1,14 +1,12 @@
 """Preprocess local EEG data for EEGMapping project."""
 
 import os
+import numpy as np
 from pathlib import Path
 from os.path import join as pjoin
 
-import numpy as np
-
 import mne
 from mne.preprocessing import ICA
-
 from fooof import FOOOFGroup
 from autoreject import AutoReject
 
@@ -119,7 +117,7 @@ def main():
 
     # Initialize fg
     # TODO: add any settings we want to ue
-    fg = FOOOFGroup(peak_width_limits=[1, 6], min_peak_amplitude=0.075,
+    fg = FOOOFGroup(peak_width_limits=[1, 6], min_peak_height=0.075,
                     max_n_peaks=6, peak_threshold=1, verbose=False)
 
     # Save out a settings file

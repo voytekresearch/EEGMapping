@@ -1,7 +1,9 @@
 """Analysis functions for EEGMapping project."""
 
 import numpy as np
+
 from scipy.stats import pearsonr, spearmanr, ttest_ind, sem, ttest_rel
+
 from plots import *
 from utilities import *
 
@@ -9,7 +11,8 @@ from utilities import *
 ###################################################################################################
 
 def run_state_dict(datasets, label, mask, save_fig):
-    """Runs an analysis across state for multiple dictionaries
+    """
+    Runs an analysis across state for multiple dictionaries
     
     datasets: list of dict
         each list entry is a state
@@ -17,8 +20,7 @@ def run_state_dict(datasets, label, mask, save_fig):
             1 - Rest
         each dict entry is a band with 3d array of subject channel feature 
     label: str
-    eeg_dat_info: str
-    pos: int
+    mask: 1-d array
     save_fig: boolean
     """
 
@@ -46,12 +48,13 @@ def run_state_dict(datasets, label, mask, save_fig):
 
 
 def run_state_array(datasets, label, mask, feats, save_fig=True):
-    """Runs an analysis across state for multiple arrays
+    """
+    Runs an analysis across state for multiple arrays
     
     datasets: list of 3d arrays
     label: str
-    eeg_dat_info: str
-    pos: int
+    mask: 1-d array
+    feats: 1-d array
     save_fig: boolean
     """
     state_ttest_dict = dict()
@@ -73,13 +76,9 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
             outputs.append(out_data)
             # Extract desired feature
             # Resulting in output being 2d array [n_subjects, n_channels] 
-
         name = label + "_" + feat
-   
-        # QUESTION: Should I average ACROSS SUBJECTS, ACROSS CHANNELS??
-        state_ttest_dict[name] = ttest_rel(np.nanmean(outputs[0]), np.nanmean(outputs[1]))
-        print("Sample ttest" + str(state_ttest_dict[name]) )
-        print("Output 0 Shape: " + str(outputs[0].shape)
+        state_ttest_dict[name] = ttest_ind(outputs[0], outputs[1])
+
         plot_comp(name, feat, outputs[0], outputs[1], save_fig=save_fig,
                   save_name=name + "_across_state")
         
@@ -88,7 +87,8 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
 
 
 def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
-    """Creates spatial topographical plots for a given dataset.
+    """
+    Creates spatial topographical plots for a given dataset.
     
     datasets: list of dict
         each list entry is a state
@@ -118,12 +118,14 @@ def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
 
 
 def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
-    """Creates an array of values associated with an FOOOF features at given positions
+    """
+    Creates an array of values associated with an FOOOF features at given positions
     
     datasets: list of dict of 4d arrays
     label: str
     eeg_dat_info: str
     pos: int
+    feats: 1-d array
     save_fig: boolean 
     """
 
@@ -163,7 +165,8 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
 
 
 def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
-    """Run analysis of FOOOF features across blocks.
+    """
+    Run analysis of FOOOF features across blocks.
     
     label: str
     dataset: dict
@@ -186,13 +189,14 @@ def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
 
 
 def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
-    """Run analysis of FOOOF features across blocks.
+    """
+    Run analysis of FOOOF features across blocks.
     
-    label:
-    dataset:
-    ch_indices
-    feat_labels:
-    save_figs:
+    label: str
+    dataset: 3-d array
+    ch_indices: list of str
+    feat_labels: 1-d array
+    save_figs: bool
     """
 
     time_corr_dict = dict()

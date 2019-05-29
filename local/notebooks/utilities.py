@@ -1,11 +1,10 @@
 """Utilities functions for EEG-Mapping analysis."""
 
 import os
+import numpy as np
 import pickle
 import warnings
 from copy import deepcopy
-
-import numpy as np
 from sklearn.preprocessing import scale
 
 ###################################################################################################
@@ -14,6 +13,7 @@ from sklearn.preprocessing import scale
 def load_pickle(f_name):
     """
     Load pickle from given directory
+
     f_name: str
     """    
     with open(os.path.join('../data/analysis/', f_name + '.pkl'), 'rb') as pickle_file:
@@ -24,6 +24,7 @@ def load_pickle(f_name):
 def comb_dicts(dicts):
     """
     Combines dictionary
+
     dicts: list of dict
     """
 
@@ -33,6 +34,7 @@ def comb_dicts(dicts):
 def mask_nan_array(dat):
     """
     Removes all nan values 
+    
     dat: 4d array
     """
     return ~np.isnan(dat)
@@ -41,6 +43,7 @@ def mask_nan_array(dat):
 def combine_groups_dict(dataset1, dataset2):
     """
     Combines 2 dictionaries
+
     dataset1: dict
     dataset2: dict
     """
@@ -56,6 +59,7 @@ def combine_groups_dict(dataset1, dataset2):
 def combine_groups_array(dataset1, dataset2):
     """
     Combines 2 arrays
+    
     dataset1: array
     dataset2: array
     """
@@ -68,6 +72,7 @@ def combine_groups_array(dataset1, dataset2):
 def avg_for_topo(dataset, feat_in):
     """
     Averages values across 4th dimension of array
+    
     dataset: 4d array
     feat_in: int
     """
@@ -83,6 +88,9 @@ def masking_cluster(pos_ch_cluster, eeg_dat):
     """
     Returns the index positions of electrodes to be masked after
     accepting the name of these electrodes as input.
+
+    pos_ch_cluster: list of str
+    eeg_dat: MNE EEG obj
     """
 
     pos_ch_cluster_index = []
@@ -96,6 +104,7 @@ def masking_cluster(pos_ch_cluster, eeg_dat):
 def demean(dataset):
     """
     Demean data.
+
     dataset: 4d array, [n_subjs, n_blocks, n_chs, n_feats]
     """
 
