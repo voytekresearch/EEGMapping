@@ -1,6 +1,7 @@
 """Analysis functions for EEGMapping project."""
 
 import numpy as np
+import warnings
 
 from scipy.stats import pearsonr, spearmanr, ttest_ind, sem, ttest_rel
 
@@ -77,7 +78,14 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
             # Extract desired feature
             # Resulting in output being 2d array [n_subjects, n_channels] 
         name = label + "_" + feat
-        state_ttest_dict[name] = ttest_ind(outputs[0], outputs[1])
+
+        outputs_zero = outputs[0].flatten()
+        outputs_zero = outputs_zero[~np.isnan(outputs_zero)]
+        
+        outputs_one = outputs[1].flatten()
+        outputs_one = outputs_one[~np.isnan(outputs_one)]
+
+        state_ttest_dict[name] = ttest_ind(outputs_zero, outputs_one)
 
         plot_comp(name, feat, outputs[0], outputs[1], save_fig=save_fig,
                   save_name=name + "_across_state")
@@ -204,10 +212,11 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
     for feat_in, feat in enumerate(feat_labels):
 
         dataset = demean(dataset)
-
-        demeaned_curr_masked_data = np.take(dataset, indices=ch_indices,  axis=2)
-        demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis=2)
-        demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            demeaned_curr_masked_data = np.take(dataset, indices=ch_indices,  axis=2)
+            demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis=2)
+            demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
 
         time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]), np.nanmedian(demeaned_curr_data_matrix, 0))
 
