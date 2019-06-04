@@ -59,6 +59,7 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
     save_fig: boolean
     """
     state_ttest_dict = dict()
+
     for feat_in, feat in enumerate(feats):
 
         outputs = []
@@ -85,7 +86,8 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
         outputs_one = outputs[1].flatten()
         outputs_one = outputs_one[~np.isnan(outputs_one)]
 
-        state_ttest_dict[name] = ttest_ind(outputs_zero, outputs_one)
+        state_ttest_dict[name] = (ttest_ind(outputs_zero, outputs_one), cohens_d(outputs_zero,   outputs_one))
+        
 
         plot_comp(name, feat, outputs[0], outputs[1], save_fig=save_fig,
                   save_name=name + "_across_state")

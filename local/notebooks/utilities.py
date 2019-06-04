@@ -120,3 +120,13 @@ def demean(dataset):
                                                              with_mean=True, axis=0, with_std=False)
 
     return dataset
+
+def cohens_d(d1, d2):
+    """
+    Calculate cohens-D: (u1 - u2)/SDpooled.
+
+    d1: list of int
+    d2: list of int
+    """
+
+    return (np.mean(d1) - np.mean(d2)) / (np.sqrt((np.std(d1) ** 2 + np.std(d2) ** 2) / 2))
