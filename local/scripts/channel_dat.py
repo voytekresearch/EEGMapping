@@ -1,12 +1,10 @@
 """Process EEG channel information..."""
+import os
 
 import mne
-import os
 ####################################################################################################
 ####################################################################################################
 
-
-# Set up paths
 
 # This base path will need updating
 base_path = 'C:\\Users\\abc\\EEG-MNE'
@@ -17,9 +15,7 @@ subj_dat_fname = '3502_resampled.set'
 chan_dat = 'channel_dat.txt'
 
 
-
 # Read in subject listed above
-
 full_path = os.path.join(base_path, subj_dat_fname)
 eeg_dat = mne.io.read_raw_eeglab(full_path)
 
