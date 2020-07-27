@@ -1,78 +1,79 @@
 """Utilities functions for EEG-Mapping analysis."""
 
 import os
-import numpy as np
 import pickle
 import warnings
 from copy import deepcopy
+
+import numpy as np
 from sklearn.preprocessing import scale
 
 ###################################################################################################
 ###################################################################################################
 
 def load_pickle(f_name):
-    """
-    Load pickle from given directory
+    """Load pickle from given directory.
 
     f_name: str
-    """    
-    with open(os.path.join('../data/analysis/', f_name + '.pkl'), 'rb') as pickle_file:
-        dat = pickle.load(pickle_file)
+    """
 
-    return dat
+    with open(os.path.join('../data/analysis/', f_name + '.pkl'), 'rb') as pickle_file:
+        data = pickle.load(pickle_file)
+
+    return data
 
 def comb_dicts(dicts):
-    """
-    Combines dictionary
+    """Combines dictionary.
 
     dicts: list of dict
     """
 
-    return {key: val for dd in dicts for key, val in dd.items()}
+    return {key : val for dd in dicts for key, val in dd.items()}
 
 
-def mask_nan_array(dat):
+def mask_nan_array(data):
+    """Removes all nan values.
+
+    data: 4d array
     """
-    Removes all nan values 
-    
-    dat: 4d array
-    """
-    return ~np.isnan(dat)
+
+    return ~np.isnan(data)
 
 
 def combine_groups_dict(dataset1, dataset2):
-    """
-    Combines 2 dictionaries
+    """Combines 2 dictionaries.
 
     dataset1: dict
     dataset2: dict
     """
+
     bands = dataset1.keys()
     output = dict()
 
     for band in bands:
-        output[band] = np.vstack([dataset1[band][:, 0, :, :], dataset2[band][:, 0, :, :]])
+        output[band] = np.vstack([dataset1[band][:, 0, :, :],
+                                  dataset2[band][:, 0, :, :]])
 
     return output
 
 
 def combine_groups_array(dataset1, dataset2):
-    """
-    Combines 2 arrays
-    
+    """Combines 2 arrays.
+
     dataset1: array
     dataset2: array
     """
+
     output = dict()
-    output = np.vstack([dataset1[:, 0, :, :], dataset2[:, 0, :, :]])
+    output = np.vstack([dataset1[:, 0, :, :],
+                        dataset2[:, 0, :, :]])
 
     return output
 
 
 def avg_for_topo(dataset, feat_in):
-    """
-    Averages values across 4th dimension of array
-    
+    """Averages values across 4th dimension of array.
+
     dataset: 4d array
     feat_in: int
     """
@@ -84,26 +85,22 @@ def avg_for_topo(dataset, feat_in):
     return bloc_aver_set
 
 
-def masking_cluster(pos_ch_cluster, eeg_dat):
-    """
-    Returns the index positions of electrodes to be masked after
-    accepting the name of these electrodes as input.
+def masking_cluster(chs, eeg):
+    """Returns the index positions of electrodes to be masked.
 
-    pos_ch_cluster: list of str
-    eeg_dat: MNE EEG obj
+    chs : list of str
+    eeg : MNE object
     """
 
-    pos_ch_cluster_index = []
-    for pos_ch in pos_ch_cluster:
-        pos_ch_cluster_index.append(eeg_dat.info['ch_names'].index(pos_ch))
+    cluster = []
+    for ch in chs:
+        cluster.append(eeg.info['ch_names'].index(ch))
 
-    # Check the indices for the channel cluster
-    return pos_ch_cluster_index
+    return cluster
 
 
 def demean(dataset):
-    """
-    Demean data.
+    """Demean data.
 
     dataset: 4d array, [n_subjs, n_blocks, n_chs, n_feats]
     """
@@ -121,9 +118,9 @@ def demean(dataset):
 
     return dataset
 
+
 def cohens_d(d1, d2):
-    """
-    Calculate cohens-D: (u1 - u2)/SDpooled.
+    """ Calculate cohens-D: (u1 - u2) / SDpooled.
 
     d1: list of int
     d2: list of int

@@ -1,7 +1,8 @@
 """Analysis functions for EEGMapping project."""
 
-import numpy as np
 import warnings
+
+import numpy as np
 
 from scipy.stats import pearsonr, spearmanr, ttest_ind, sem, ttest_rel
 
@@ -12,14 +13,13 @@ from utilities import *
 ###################################################################################################
 
 def run_state_dict(datasets, label, mask, save_fig):
-    """
-    Runs an analysis across state for multiple dictionaries
-    
+    """Runs an analysis across state for multiple dictionaries.
+
     datasets: list of dict
         each list entry is a state
             0 - Trial
             1 - Rest
-        each dict entry is a band with 3d array of subject channel feature 
+        each dict entry is a band with 3d array of subject channel feature
     label: str
     mask: 1-d array
     save_fig: boolean
@@ -30,13 +30,13 @@ def run_state_dict(datasets, label, mask, save_fig):
     # "theta, alpha, beta"
 
     feats = ["CFS", "PWS", "BWS"]
-    # creating a list of the feature names 
+    # creating a list of the feature names
 
     corr_dicts = []
 
     for band in bands:
     # This loop goes through each of the bands individual bands
-    # Resulting in a [n_subjects, num_blocks, n_channels, n_feats] 
+    # Resulting in a [n_subjects, num_blocks, n_channels, n_feats]
 
         curr_data = [dataset[band] for dataset in datasets]
         # curr_data is a list of [n_subjects, num_blocks, n_channels, n_feats] for both states
@@ -49,9 +49,8 @@ def run_state_dict(datasets, label, mask, save_fig):
 
 
 def run_state_array(datasets, label, mask, feats, save_fig=True):
-    """
-    Runs an analysis across state for multiple arrays
-    
+    """Runs an analysis across state for multiple arrays.
+
     datasets: list of 3d arrays
     label: str
     mask: 1-d array
@@ -77,36 +76,36 @@ def run_state_array(datasets, label, mask, feats, save_fig=True):
             out_data = dataset[:, :, feat_in]
             outputs.append(out_data)
             # Extract desired feature
-            # Resulting in output being 2d array [n_subjects, n_channels] 
+            # Resulting in output being 2d array [n_subjects, n_channels]
         name = label + "_" + feat
 
         outputs_zero = outputs[0].flatten()
         outputs_zero = outputs_zero[~np.isnan(outputs_zero)]
-        
+
         outputs_one = outputs[1].flatten()
         outputs_one = outputs_one[~np.isnan(outputs_one)]
 
-        state_ttest_dict[name] = (ttest_ind(outputs_zero, outputs_one), cohens_d(outputs_zero,   outputs_one))
-        
+        state_ttest_dict[name] = (ttest_ind(outputs_zero, outputs_one),
+                                  cohens_d(outputs_zero, outputs_one))
+
 
         plot_comp(name, feat, outputs[0], outputs[1], save_fig=save_fig,
                   save_name=name + "_across_state")
-        
+
 
     return state_ttest_dict
 
 
-def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
-    """
-    Creates spatial topographical plots for a given dataset.
-    
+def make_topos_dict(datasets, label, eeg_info, pos, save_fig=True):
+    """Creates spatial topographical plots for a given dataset.
+
     datasets: list of dict
         each list entry is a state
             0 - Trial
             1 - Rest
-        each dict entry is a band with 3d array of subject channel feature 
+        each dict entry is a band with 3d array of subject channel feature
     label: str
-    eeg_dat_info: str
+    eeg_info: str
     pos: int
     save_fig: boolean
     """
@@ -120,23 +119,22 @@ def make_topos_dict(datasets, label, eeg_dat_info, pos, save_fig=True):
 
         cur_data = [dataset[band] for dataset in datasets]
         corr_dicts.append(make_topos_array(cur_data, label + '_' + band,
-                          eeg_dat_info, pos, feats, save_fig))
+                          eeg_info, pos, feats, save_fig))
 
     space_corr_dict = comb_dicts(corr_dicts)
 
     return space_corr_dict
 
 
-def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
-    """
-    Creates an array of values associated with an FOOOF features at given positions
-    
+def make_topos_array(datasets, label, eeg_info, pos, feats, save_fig=True):
+    """Creates an array of values associated with an FOOOF features at given positions.
+
     datasets: list of dict of 4d arrays
     label: str
-    eeg_dat_info: str
+    eeg_info: str
     pos: int
     feats: 1-d array
-    save_fig: boolean 
+    save_fig: boolean
     """
 
     space_corr_dict = dict()
@@ -154,9 +152,9 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
         avg_dat = np.mean(topo_dat, 0)
 
         ## Plot topographies - within and across datasets
-        plot_topo(topo_dat[0, :], title='D1' + label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
-        plot_topo(topo_dat[0, :], title='D2'+ label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
-        plot_topo(avg_dat, title='Both_' + label + feat, eeg_dat_info=eeg_dat_info, save_fig=save_fig)
+        plot_topo(topo_dat[0, :], title='D1' + label + feat, eeg_info=eeg_info, save_fig=save_fig)
+        plot_topo(topo_dat[0, :], title='D2'+ label + feat, eeg_info=eeg_info, save_fig=save_fig)
+        plot_topo(avg_dat, title='Both_' + label + feat, eeg_info=eeg_info, save_fig=save_fig)
 
         ## Plot scatter plots - across datasets for Ant-Pos & Med-Lat
         plot_space_scatter(avg_dat, abs(pos[:, 0]), 'Both_' + label + feat + "_medial_to_lateral_plot",
@@ -175,9 +173,8 @@ def make_topos_array(datasets, label, eeg_dat_info, pos, feats, save_fig=True):
 
 
 def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
-    """
-    Run analysis of FOOOF features across blocks.
-    
+    """Run analysis of FOOOF features across blocks.
+
     label: str
     dataset: dict
     ch_indices: list of str
@@ -199,9 +196,8 @@ def run_dict_across_blocks(label, dataset, ch_indices, save_figs):
 
 
 def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
-    """
-    Run analysis of FOOOF features across blocks.
-    
+    """Run analysis of FOOOF features across blocks.
+
     label: str
     dataset: 3-d array
     ch_indices: list of str
@@ -220,7 +216,8 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
             demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis=2)
             demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
 
-        time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]), np.nanmedian(demeaned_curr_data_matrix, 0))
+        time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]),
+                                                       np.nanmedian(demeaned_curr_data_matrix, 0))
 
         #avgs = np.nanmedian(demeaned_curr_data_matrix, axis=0)
         avgs = np.nanmean(demeaned_curr_data_matrix, axis=0)

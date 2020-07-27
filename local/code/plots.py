@@ -1,35 +1,36 @@
 """Plotting functions for EEG-Mapping analysis."""
 
 import os
+
 import numpy as np
 import matplotlib.pyplot as plt
-
 from matplotlib import cm, colors, colorbar
 from scipy.stats import ttest_1samp, ttest_ind, sem, pearsonr
 
 import mne
+
 from fooof.core.funcs import gaussian_function, expo_nk_function
+
 from utilities import *
 
 ###################################################################################################
 ###################################################################################################
 
 def save_figure(save_out, name):
-    """
-    Saves a given plot to given location with specific name.
-    
+    """Saves a given plot to given location with specific name.
+
     save_out: str
     name: str
     """
+
     fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
     if save_out:
         plt.savefig(os.path.join(fig_save_path, name + '.png'), bbox_inches='tight', dpi=300)
 
 
 def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
-    """
-    Plots the comparison between groups, as a mean value with an errorbar.
-    
+    """Plots the comparison between groups, as a mean value with an errorbar.
+
     title: str
     feature: str
     dat1: 1d array
@@ -65,15 +66,15 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
 
 
 def plot_across_blocks(avgs, yerrs, ylabel, label, save_fig=True):
-    """
-    Plots the correlations across blocks
-    
+    """Plots the correlations across blocks.
+
     avgs: 1d array
     yerrs: 1d array
     ylabel: str
     label: str
     save_fig: bool
     """
+
     block_nums = [ii + 1 for ii in range(len(avgs))]
 
     fig, ax = plt.subplots()
@@ -93,14 +94,14 @@ def plot_across_blocks(avgs, yerrs, ylabel, label, save_fig=True):
 
 
 def plot_corrs_boxplot(corrs, corr_labels, label, save_fig=True):
-    """
-    Plots the correlations across epochs
-    
+    """Plots the correlations across epochs.
+
     corrs: 1d array
     corr_labels: 1d array
     label: str
     save_fig: bool
     """
+
     fig, ax = plt.subplots(figsize=(14, 6))
     plt.boxplot(corrs);
 
@@ -117,13 +118,12 @@ def plot_corrs_boxplot(corrs, corr_labels, label, save_fig=True):
     save_figure(save_fig, label)
 
 
-def plot_topo(data, title, eeg_dat_info, save_fig=True):
-    """
-    Plots the spatial topographical graphs of a given function 
-    
+def plot_topo(data, title, eeg_info, save_fig=True):
+    """Plots the spatial topographical graphs of a given function.
+
     data: 1d array, len number of channels
     title: str
-    eeg_dat_info: MNE object
+    eeg_info: MNE object
     save_fig: bool
     """
 
@@ -134,7 +134,7 @@ def plot_topo(data, title, eeg_dat_info, save_fig=True):
     vmin, vmax,  = data.min() - vbuffer, data.max() + vbuffer
 
     fig, ax = plt.subplots()
-    mne.viz.plot_topomap(data, eeg_dat_info, vmin=vmin, vmax=vmax,
+    mne.viz.plot_topomap(data, eeg_info, vmin=vmin, vmax=vmax,
                          cmap=cm.viridis, contours=0, axes=ax)
 
     plot_topo_colorbar(vmin, vmax, title, save_fig)
@@ -146,9 +146,8 @@ def plot_topo(data, title, eeg_dat_info, save_fig=True):
 
 
 def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
-    """
-    Creates a colorbar for the topography plots
-    
+    """Creates a colorbar for the topography plots.
+
     vmin: int
     vmax: int
     label: str
@@ -167,9 +166,8 @@ def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
 
 
 def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
-    """
-    Plot scatter graph of values across spatial positions .
-    
+    """Plot scatter graph of values across spatial positions .
+
     dat: 1d array
     pos: 1d array
     label: str
@@ -192,9 +190,8 @@ def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
     save_figure(save_fig, label)
 
 def plot_oscillations(alphas, save_fig=False, save_name=None):
-    """
-    Plot a group of (flattened) oscillation definitions.
-    
+    """Plot a group of (flattened) oscillation definitions.
+
     alphas: 1d array
     save_fig: bool
     save_name: str
@@ -234,10 +231,10 @@ def plot_oscillations(alphas, save_fig=False, save_name=None):
 
     save_figure(save_fig, save_name)
 
+
 def plot_aperiodic(bgs, control_offset=False, save_fig=False, save_name=None):
-    """
-    Plots the aperiodic components, comparing between groups.
-    
+    """Plots the aperiodic components, comparing between groups.
+
     bgs: 2d array
     control_offset: bool
     save_fig: bool
@@ -295,9 +292,8 @@ def plot_aperiodic(bgs, control_offset=False, save_fig=False, save_name=None):
 ###################################################################################################
 
 def _set_lr_spines(ax, lw=None):
-    """
-    Sets the values for spines
-    
+    """Sets the values for spines.
+
     ax: axis obj
     lw: int
     """
@@ -314,23 +310,23 @@ def _set_lr_spines(ax, lw=None):
 
 
 def _set_tick_sizes(ax, x_size=12, y_size=12):
-    """
-    Sets the tick sizes
-    
+    """Sets the tick sizes.
+
     ax: axis obj
     x_size: int
     y_size: int
     """
+
     plt.setp(ax.get_xticklabels(), fontsize=x_size)
     plt.setp(ax.get_yticklabels(), fontsize=y_size)
 
 def _set_label_sizes(ax, x_size=16, y_size=16):
-    """
-    Sets the label fontsizes
-    
+    """Sets the label fontsizes.
+
     ax: axis obj
     x_size: int
     y_size: int
     """
+
     ax.xaxis.label.set_size(x_size)
     ax.yaxis.label.set_size(y_size)
