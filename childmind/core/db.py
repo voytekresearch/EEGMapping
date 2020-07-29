@@ -1,4 +1,4 @@
-"""Database related organization and utilities for slope fitting project."""
+"""Database related organization and utilities for EEGMapping on ChildMind data."""
 
 import os
 
@@ -16,18 +16,15 @@ class EEGDB(object):
         Path to all data.
     subjs_path : str
         Path to EEG subjects data.
-    syns_path : str
-    	Path to synthetic-fitting data.
     """
 
     def __init__(self, gen_paths=True):
         """Initialize SLFDB object."""
 
-        # Set base path for project
-        self.project_path = ("/Users/tom/Documents/Research/1-Projects/EEGMapping/")
+        # Set base path for data
+        self.data_path = ("/Users/tom/Documents/Data/03-External/Childmind")
 
         # Initialize paths
-        self.data_path = str()
         self.subjs_path = str()
         self.psd_path = str()
         self.fooof_path = str()
@@ -40,15 +37,13 @@ class EEGDB(object):
     def gen_paths(self):
         """Generate paths."""
 
-        self.data_path = os.path.join(self.project_path, '2-Data/childmind')
         self.subjs_path = os.path.join(self.data_path, 'EEG', 'Subjs')
-        self.syns_path = os.path.join(self.data_path, 'syns')
         self.psd_path = os.path.join(self.data_path, 'psds')
         self.fooof_path = os.path.join(self.data_path, 'fooof')
 
 
     def check_subjs(self):
-        """Check which subjects are avaiable in database."""
+        """Check which subjects are available in database."""
 
         subjs = _clean_files(os.listdir(self.subjs_path))
 
@@ -64,7 +59,7 @@ class EEGDB(object):
 
 
     def check_fooof(self):
-        """Check which synthetic-fitting files are available in the database."""
+        """Check which FOOOF files are available in the database."""
 
         fooof_files = _clean_files(os.listdir(self.fooof_path))
 
@@ -74,24 +69,19 @@ class EEGDB(object):
     def get_subj_files(self, subj_number):
         """Get the preprocessed, EEG data file names (csv format) a specified subject."""
 
-        dat_dir = os.path.join(self.subjs_path, subj_number,
+        data_dir = os.path.join(self.subjs_path, subj_number,
                                'EEG', 'preprocessed', 'csv_format')
-        files = os.listdir(dat_dir)
+        files = os.listdir(data_dir)
 
         eeg = [fi for fi in files if 'events' not in fi and 'channels' not in fi]
         evs = [fi for fi in files if 'events' in fi]
         chs = [fi for fi in files if 'channels' in fi]
 
-        # Quick hack to ignore subjs with problematic files
-        if not len(eeg) == len(evs) == len(chs):
-            print('Oh Shit. Something seems to have gone wrong.')
-            return None, None, None
-
         return eeg, evs, chs
 
 
     def get_psd_subjs(self):
-        """Get a list of subject number for whom PSDs are calculated."""
+        """Get a list of subject numbers for whom PSDs are calculated."""
 
         psd_files = self.check_psd()
 
@@ -106,12 +96,12 @@ class EEGDB(object):
         return [fi.split('_')[0] for fi in fooof_files]
 
 
-    def gen_dat_path(self, subj_number, dat_file):
+    def gen_data_path(self, subj_number, data_file):
         """Generate full file path to a data file."""
 
         return os.path.join(self.subjs_path, subj_number,
                             'EEG', 'preprocessed', 'csv_format',
-                            dat_file)
+                            data_file)
 
 ####################################################################################################
 ####################################################################################################
