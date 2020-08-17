@@ -2,11 +2,11 @@
 
 import os
 
-####################################################################################################
-####################################################################################################
+###################################################################################################
+###################################################################################################
 
 class EEGDB(object):
-    """Class to hold database information for slope fitting project.
+    """Class to hold database information for ChildMind data.
 
     Attributes
     ----------
@@ -19,7 +19,7 @@ class EEGDB(object):
     """
 
     def __init__(self, gen_paths=True):
-        """Initialize SLFDB object."""
+        """Initialize EEGDB object."""
 
         # Set base path for data
         self.data_path = ("/Users/tom/Documents/Data/03-External/Childmind")
