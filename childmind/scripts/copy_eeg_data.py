@@ -3,8 +3,8 @@
 import os
 import shutil
 
-####################################################################################################
-####################################################################################################
+###################################################################################################
+###################################################################################################
 
 # Subjects with no data (info from README)
 SKIP_SUBJS = ['A00052593', 'A00054122', 'A00055801', 'A00056158', 'A00056640', 'A00056990']
@@ -15,8 +15,11 @@ SKIP_SUBJS = SKIP_SUBJS + ['A00055923', 'A00057135']
 SOURCE_PATH = '/Volumes/WINDATA/MIPDB_EEGDev/Subjs/'
 DEST_PATH = '/Users/tom/Desktop/CMI_Data/Subjs/'
 
-####################################################################################################
-####################################################################################################
+###################################################################################################
+###################################################################################################
+
+def clean_files(files):
+    return [it for it in files if it[0] is not '.']
 
 def main():
 
@@ -41,25 +44,20 @@ def main():
         source_dir = os.path.join(SOURCE_PATH, subj, *folder_names)
         dest_dir = os.path.join(DEST_PATH, subj, *folder_names)
 
-        dat_files = clean_files(os.listdir(source_dir))
+        data_files = clean_files(os.listdir(source_dir))
 
-        for df in dat_files:
+        for data_file in data_files:
 
-            s_file = os.path.join(source_dir, df)
-            d_file = os.path.join(dest_dir, df)
+            source_file = os.path.join(source_dir, data_file)
+            dest_file = os.path.join(dest_dir, data_file)
 
             # Skip file if it exists
-            if os.path.exists(d_file):
+            if os.path.exists(dest_file):
                 continue
 
             # Copy file over
-            shutil.copy(s_file, d_file)
+            shutil.copy(source_file, dest_file)
 
-def clean_files(files):
-    return [it for it in files if it[0] is not '.']
-
-####################################################################################################
-####################################################################################################
 
 if __name__ == "__main__":
     main()
