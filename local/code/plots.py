@@ -19,22 +19,21 @@ from utilities import *
 def save_figure(save_out, name):
     """Saves a given plot to given location with specific name.
 
-    save_out: str
+    save_out: bool
     name: str
     """
 
-    fig_save_path = 'C:\\Users\\abc\\Documents\\Research\\figures'
     if save_out:
-        plt.savefig(os.path.join(fig_save_path, name + '.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join('../figures/', name + '.pdf'), bbox_inches='tight')
 
 
-def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
+def plot_comp(title, feature, data1, data2, save_fig=False, save_name=None):
     """Plots the comparison between groups, as a mean value with an errorbar.
 
     title: str
     feature: str
-    dat1: 1d array
-    dat2: 1d array
+    data1: 1d array
+    data2: 1d array
     save_fig: bool
     save_name: str
     """
@@ -42,11 +41,11 @@ def plot_comp(title, feature, dat1, dat2, save_fig=False, save_name=None):
     fig, ax = plt.subplots(figsize=[2, 4])
 
     # Split up data
-    dat1 = dat1[~np.isnan(dat1)]
-    dat2 = dat2[~np.isnan(dat2)]
+    data1 = data1[~np.isnan(data1)]
+    data2 = data2[~np.isnan(data2)]
 
-    means = [np.mean(dat1), np.mean(dat2)]
-    sems = [sem(dat1), sem(dat2)]
+    means = [np.mean(data1), np.mean(data2)]
+    sems = [sem(data1), sem(data2)]
 
     plt.errorbar([1, 2], means, yerr=sems, xerr=None, fmt='.',
                  markersize=22, capsize=10, elinewidth=2, capthick=2)
@@ -165,18 +164,18 @@ def plot_topo_colorbar(vmin, vmax, label, save_fig=True):
     save_figure(save_fig, label + '_cb')
 
 
-def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
+def plot_space_scatter(data, pos, label, xlabel, ylabel, save_fig=True):
     """Plot scatter graph of values across spatial positions .
 
-    dat: 1d array
-    pos: 1d array
-    label: str
-    xlabel: str
-    ylabel: str
-    save_fig: bool
+    data : 1d array
+    pos : 1d array
+    label : str
+    xlabel : str
+    ylabel : str
+    save_fig : bool
     """
     fig, ax = plt.subplots()
-    plt.scatter(pos, dat)
+    plt.scatter(pos, data)
 
     # Titles & Labels
     ax.set_title(label)
@@ -189,6 +188,8 @@ def plot_space_scatter(dat, pos, label, xlabel, ylabel, save_fig=True):
 
     save_figure(save_fig, label)
 
+
+# NOTE: CAN BE USED FROM FOOOF NOW
 def plot_oscillations(alphas, save_fig=False, save_name=None):
     """Plot a group of (flattened) oscillation definitions.
 
@@ -232,6 +233,7 @@ def plot_oscillations(alphas, save_fig=False, save_name=None):
     save_figure(save_fig, save_name)
 
 
+# NOTE: CAN BE USED FROM FOOOF NOW
 def plot_aperiodic(bgs, control_offset=False, save_fig=False, save_name=None):
     """Plots the aperiodic components, comparing between groups.
 

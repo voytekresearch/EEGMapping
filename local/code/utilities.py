@@ -78,7 +78,7 @@ def avg_for_topo(dataset, feat_in):
     feat_in: int
     """
 
-    feat_set =  dataset[:,:,:,feat_in]
+    feat_set =  dataset[:, :, :, feat_in]
     bloc_aver_set = np.nanmean(feat_set, axis = 1)
     bloc_aver_set = np.nanmean(bloc_aver_set, axis = 0)
 
