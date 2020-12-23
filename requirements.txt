@@ -1,0 +1,6 @@
+numpy
+scipy
+matplotlib
+mne >= 0.18.2
+fooof >= 1.0.0
+autoreject

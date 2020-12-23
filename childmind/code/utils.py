@@ -1,28 +1,22 @@
-"""Utility functions for EEGMapping project."""
+"""I/O utilities for EEGMapping on ChildMind data."""
 
-from itertools import combinations, product
-
-from scipy.stats import pearsonr, spearmanr
+import os
+import pickle
 
 ###################################################################################################
 ###################################################################################################
 
-def comb_corrs(lst):
-    """Combine a list of correlations."""
+def save_pickle(data, f_name, save_path):
+    """Save a data object to a pickle file."""
 
-    corrs = []
-    for ii, jj in combinations(lst, 2):
-        corrs.append(pearsonr(ii, jj)[0])
-
-    return corrs
+    with open(os.path.join(save_path, f_name), 'wb') as pickle_file:
+        pickle.dump(data, pickle_file)
 
 
-def bet_corrs(lst1, lst2, corr_func=pearsonr):
-    """Calculate correlations between lists of elements."""
+def load_pickle(f_name, save_path):
+    """Load a data objcet from a pickle file."""
 
-    corrs = []
+    with open(os.path.join(save_path, f_name), 'rb') as pickle_file:
+        data = pickle.load(pickle_file)
 
-    for ii, jj in product(lst1, lst2):
-        corrs.append(corr_func(ii, jj)[0])
-
-    return corrs
+    return data
