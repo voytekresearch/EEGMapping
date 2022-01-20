@@ -1,9 +1,12 @@
 """Database related organization and utilities for EEGMapping on ChildMind data."""
 
 import os
+from pathlib import Path
 
 ###################################################################################################
 ###################################################################################################
+
+DEFAULT_PATH = "/Users/tom/Documents/Data/03-External/Childmind"
 
 class EEGDB(object):
     """Class to hold database information for ChildMind data.
@@ -18,11 +21,11 @@ class EEGDB(object):
         Path to EEG subjects data.
     """
 
-    def __init__(self, gen_paths=True):
+    def __init__(self, data_path=DEFAULT_PATH, gen_paths=True):
         """Initialize EEGDB object."""
 
         # Set base path for data
-        self.data_path = ("/Users/tom/Documents/Data/03-External/Childmind")
+        self.data_path = Path(data_path)
 
         # Initialize paths
         self.subjs_path = str()
@@ -37,9 +40,9 @@ class EEGDB(object):
     def gen_paths(self):
         """Generate paths."""
 
-        self.subjs_path = os.path.join(self.data_path, 'EEG', 'Subjs')
-        self.psd_path = os.path.join(self.data_path, 'psds')
-        self.fooof_path = os.path.join(self.data_path, 'fooof')
+        self.subjs_path = self.data_path / 'EEG' / 'Subjs'
+        self.psd_path = self.data_path / 'psds'
+        self.fooof_path = self.data_path / 'fooof'
 
 
     def check_subjs(self):
