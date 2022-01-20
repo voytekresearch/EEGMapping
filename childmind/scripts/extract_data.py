@@ -74,6 +74,7 @@ def main():
             data_ind = [df.split('.')[0][-3:] for df in data_files].index('001')
         except(ValueError):
             print('Files not found. Can not proceed.')
+            continue
 
         # Get file file path for data file & associated event file
         data_file = data_files[data_ind]
