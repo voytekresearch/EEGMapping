@@ -1,4 +1,4 @@
-"""Utility functions for EEGMapping project."""
+"""Analysis functions for EEGMapping project."""
 
 from itertools import combinations, product
 

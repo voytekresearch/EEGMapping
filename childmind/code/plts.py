@@ -1,4 +1,4 @@
-"""Plot function for EEGMapping project."""
+"""Plot functions for EEGMapping project."""
 
 import numpy as np
 import matplotlib.pyplot as plt

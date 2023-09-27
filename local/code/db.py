@@ -22,8 +22,10 @@ class EEGDB(object):
 
         # FOOOF paths
         self.fooofs_path = pjoin(base_results, 'fooofs', group)
-        self.fooofs_rest_path = pjoin(self.fooofs_path, 'rest')
-        self.fooofs_trial_path = pjoin(self.fooofs_path, 'trial')
+        #self.fooofs_rest_path = pjoin(self.fooofs_path, 'rest')
+        #self.fooofs_trial_path = pjoin(self.fooofs_path, 'trial')
+        self.fooofs_rest_path = pjoin(self.fooofs_path, 'rest_fixed')
+        self.fooofs_trial_path = pjoin(self.fooofs_path, 'trial_fixed')
 
         # EEG processing path
         self.eeg_path = pjoin(base_results, 'eeg', group)
@@ -31,7 +33,8 @@ class EEGDB(object):
         self.ar_path = pjoin(self.eeg_path, 'AR')
 
         # Results path
-        self.results_path = pjoin(base_results, 'results')
+        #self.results_path = pjoin(base_results, 'results')
+        self.results_path = pjoin(base_results, 'test')
 
 
 def clean_files(files):

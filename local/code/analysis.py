@@ -209,6 +209,9 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
     save_figs: bool
     """
 
+    corr_func = spearmanr
+    avg_func = np.nanmean
+
     time_corr_dict = dict()
 
     for feat_in, feat in enumerate(feat_labels):
@@ -220,11 +223,10 @@ def run_array_across_blocks(label, dataset, ch_indices, feat_labels, save_figs):
             demeaned_curr_mean_data = np.nanmean(demeaned_curr_masked_data, axis=2)
             demeaned_curr_data_matrix = demeaned_curr_mean_data[:,:,feat_in]
 
-        time_corr_dict[label + '_' + feat ] = pearsonr(range(0, demeaned_curr_data_matrix.shape[1]),
-                                                       np.nanmedian(demeaned_curr_data_matrix, 0))
+        time_corr_dict[label + '_' + feat ] = corr_func(range(0, demeaned_curr_data_matrix.shape[1]),
+                                                        avg_func(demeaned_curr_data_matrix, 0))
 
-        #avgs = np.nanmedian(demeaned_curr_data_matrix, axis=0)
-        avgs = np.nanmean(demeaned_curr_data_matrix, axis=0)
+        avgs = avg_func(demeaned_curr_data_matrix, axis=0)
 
         #yerrs = np.std(demeaned_curr_data_matrix, axis=0)
         yerrs = sem(demeaned_curr_data_matrix, axis=0)

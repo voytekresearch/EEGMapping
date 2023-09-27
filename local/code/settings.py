@@ -31,7 +31,7 @@ RTPB_INFO = {
     'SUBJ_NUMS' : list(range(3502, 3516)),
 
     'NUM_REST' : 2,
-    'NUM_TASK' : 10,
+    'NUM_TRIAL' : 10,
 
     'REST_EVENT_ID' : {'Start Labelling Block' : 2000},
     'TRIAL_EVENT_ID' : {'Start Block' : 3000},
@@ -67,7 +67,7 @@ PBA_INFO = {
 
     'SUBJ_NUMS' : list(range(3001, 3015)),
     'NUM_REST' : 1,
-    'NUM_TASK' : 12,
+    'NUM_TRIAL' : 12,
 
     'REST_EVENT_ID' : {'Rest_Start' : 3000},
     'TRIAL_EVENT_ID' : {'Exp_Block_Start' : 5000},

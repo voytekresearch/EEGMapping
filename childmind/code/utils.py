@@ -1,4 +1,4 @@
-"""I/O utilities for EEGMapping on ChildMind data."""
+"""Utilities for EEGMapping on ChildMind data."""
 
 import os
 import pickle
@@ -13,7 +13,7 @@ def save_pickle(data, f_name, save_path):
         pickle.dump(data, pickle_file)
 
 
-def load_pickle(f_name, save_path):
+def load_pickle(f_name, save_path=''):
     """Load a data objcet from a pickle file."""
 
     with open(os.path.join(save_path, f_name), 'rb') as pickle_file:
