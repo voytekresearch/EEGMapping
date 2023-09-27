@@ -1,4 +1,9 @@
-"""Run FOOOF on the MIPDB dataset."""
+"""Run FOOOF on the MIPDB dataset.
+
+TODO:
+- Update to save out FOOOF files, rather than pickle files
+- Rerun script
+"""
 
 from os.path import join as pjoin
 

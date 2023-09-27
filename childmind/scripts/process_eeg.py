@@ -10,8 +10,9 @@ import mne
 
 # Import custom project related code
 import sys
-sys.path.append('../')
-from code.db import EEGDB
+sys.path.append('../code')
+from db import EEGDB
+from utils import save_pickle
 
 ###################################################################################################
 ###################################################################################################
@@ -36,6 +37,14 @@ def main():
     db = EEGDB()
     subjs = db.check_subjs()
     done = db.get_psd_subjs()
+
+    # Read in list of channel names that are kept in reduced 111 montage
+    with open('../data/chans111.csv', 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        ch_labels = list(reader)[0]
+
+    # Set collection containers for info across subjects
+    all_flat_chans = {}
 
     for cur_subj in subjs:
 
@@ -81,16 +90,12 @@ def main():
         # Load data file
         data = np.loadtxt(data_fname, delimiter=',')
 
-        # Read in list of channel names that are kept in reduced 111 montage
-        with open('../data/chans111.csv', 'r') as csv_file:
-            reader = csv.reader(csv_file)
-            ch_labels = list(reader)[0]
-
-        # Read montage, reduced to 111 channel selection
-        montage = mne.channels.read_montage('GSN-HydroCel-129', ch_names=ch_labels)
+        # NEW: Create channel montage
+        montage = mne.channels.make_standard_montage('GSN-HydroCel-129')
 
         # Create the info structure needed by MNE
-        info = mne.create_info(ch_labels, S_RATE, 'eeg', montage)
+        info = mne.create_info(ch_labels, S_RATE, 'eeg')
+        info.set_montage(montage)
 
         # Create the MNE Raw data object
         raw = mne.io.RawArray(data, info)
@@ -102,7 +107,8 @@ def main():
         # Add stim channel to data object
         raw.add_channels([stim_raw], force_update_info=True)
 
-        # Load events from file
+        ## Load events from file
+
         # Initialize headers and variable to store event info
         headers = ['type', 'value', 'latency', 'duration', 'urevent']
         evs = np.empty(shape=[0, 3])
@@ -129,8 +135,10 @@ def main():
         data_evs = mne.find_events(raw)
 
         # Find flat channels and set them as bad
-        flat_chans = np.mean(raw._data[:111, :], axis=1) == 0
-        raw.info['bads'] = list(np.array(raw.ch_names[:111])[flat_chans])
+        flat_inds = np.mean(raw._data[:111, :], axis=1) == 0
+        flat_chans = list(np.array(raw.ch_names[:111])[flat_inds])
+        raw.info['bads'] = flat_chans
+        all_flat_chans[cur_subj] = flat_chans
 
         # Interpolate bad channels
         raw.interpolate_bads()
@@ -164,6 +172,9 @@ def main():
 
         # Print status
         print('\tPSD DATA SAVED FOR SUBJ: ', str(cur_subj), '\n\n')
+
+    # Save out any group level metadata
+    save_pickle(all_flat_chans, 'childmind_interp_chs.p', db.data_path)
 
 
 if __name__ == "__main__":

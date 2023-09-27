@@ -1,6 +1,5 @@
 """Analyzing local EEG data for EEGMapping project."""
 
-
 import fnmatch
 import pickle
 from pathlib import Path
@@ -11,7 +10,7 @@ import numpy as np
 import mne
 
 from fooof import FOOOFGroup
-from fooof.analysis import *
+from fooof.analysis.periodic import get_band_peak
 
 import sys
 sys.path.append('../code')
@@ -22,7 +21,7 @@ from db import EEGDB
 ###################################################################################################
 
 ## SETTINGS
-GROUP = 'rtPB'  # {'rtPB', 'PBA'}
+GROUP = 'PBA'  # {'rtPB', 'PBA'}
 STATE = 'rest'  # {'rest', 'trial'}
 
 ###################################################################################################
