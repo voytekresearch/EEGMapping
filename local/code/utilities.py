@@ -22,6 +22,7 @@ def load_pickle(f_name):
 
     return data
 
+
 def comb_dicts(dicts):
     """Combines dictionary.
 
@@ -113,8 +114,9 @@ def demean(dataset):
 
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    dataset[s_ind, :, ch_ind, f_ind] = scale(dataset[s_ind, :, ch_ind, f_ind],
-                                                             with_mean=True, axis=0, with_std=False)
+                    dataset[s_ind, :, ch_ind, f_ind] = scale(\
+                        dataset[s_ind, :, ch_ind, f_ind],
+                        with_mean=True, axis=0, with_std=False)
 
     return dataset
 

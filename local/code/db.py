@@ -11,7 +11,7 @@ class EEGDB(object):
     def __init__(self, group):
 
         # Set data paths
-        base_data_path = '/Users/tom/Documents/Data/01-Internal/{}/{}-3/processed/EEG/'
+        base_data_path = '/Volumes/Data/01-Internal/{}/{}-3/processed/EEG/'
         self.data_path = base_data_path.format(group, group)
 
         # Set base project path

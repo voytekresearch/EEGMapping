@@ -26,22 +26,15 @@ def run_state_dict(datasets, label, mask, save_fig):
     """
 
     bands = datasets[0].keys()
-    # extracting the band names from one of the lists
-    # "theta, alpha, beta"
-
     feats = ["CFS", "PWS", "BWS"]
-    # creating a list of the feature names
-
     corr_dicts = []
 
-    for band in bands:
     # This loop goes through each of the bands individual bands
     # Resulting in a [n_subjects, num_blocks, n_channels, n_feats]
+    for band in bands:
 
+        # Create list of [n_subjects, num_blocks, n_channels, n_feats]; (0:trial, 1:rest)
         curr_data = [dataset[band] for dataset in datasets]
-        # curr_data is a list of [n_subjects, num_blocks, n_channels, n_feats] for both states
-        # 0 - Trial
-        # 1 - Rest
 
         corr_dicts.append(run_state_array(curr_data, label + '_' + band,
                                           mask, feats, save_fig))
@@ -159,9 +152,11 @@ def make_topos_array(datasets, label, eeg_info, pos, feats, save_fig=True):
                   eeg_info=eeg_info, save_fig=save_fig)
 
         # Plot scatter plots - across datasets for Ant-Pos & Med-Lat
-        plot_space_scatter(avg_data, abs(pos[:, 0]), 'Both_' + label + feat + "_medial_to_lateral_plot",
+        plot_space_scatter(avg_data, abs(pos[:, 0]),
+                           'Both_' + label + feat + "_medial_to_lateral_plot",
                            xlabel='Medial -> Lateral' , ylabel=feat, save_fig=save_fig)
-        plot_space_scatter(avg_data, pos[:, 1], 'Both_' + label + feat + "_posterior_to_anterior_plot",
+        plot_space_scatter(avg_data, pos[:, 1],
+                           'Both_' + label + feat + "_posterior_to_anterior_plot",
                            xlabel='Posterior -> Anterior' , ylabel=feat, save_fig=save_fig)
 
         space_corr_dict['Both_' + label + '_' +  feat +'_' + "M_L"] = \

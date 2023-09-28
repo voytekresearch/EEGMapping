@@ -28,7 +28,7 @@ def save_figure(save_out, name):
 
 
 def plot_comp(title, feature, data1, data2, save_fig=False, save_name=None):
-    """Plots the comparison between groups, as a mean value with an errorbar.
+    """Plots the comparison between groups, as a mean value with an error bar.
 
     title: str
     feature: str
@@ -196,7 +196,7 @@ def plot_oscillations(alphas, save_fig=False, save_name=None):
     alphas: 1d array
     save_fig: bool
     save_name: str
-    Note: plot taken & adapated from EEGFOOOF.
+    Note: plot taken & adapted from EEGFOOOF.
     """
 
     n_subjs = alphas.shape[0]
@@ -322,8 +322,9 @@ def _set_tick_sizes(ax, x_size=12, y_size=12):
     plt.setp(ax.get_xticklabels(), fontsize=x_size)
     plt.setp(ax.get_yticklabels(), fontsize=y_size)
 
+
 def _set_label_sizes(ax, x_size=16, y_size=16):
-    """Sets the label fontsizes.
+    """Sets the label font sizes.
 
     ax: axis obj
     x_size: int

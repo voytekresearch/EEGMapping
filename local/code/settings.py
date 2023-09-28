@@ -7,9 +7,14 @@ from fooof.data import FOOOFSettings
 ###################################################################################################
 
 ## General data settings
+FS = 500
 N_CHANNELS = 64
-N_FEATS = 3
 EOG_CHS = ['Fp1', 'Fp2']
+TMIN = 10
+TMAX = 40
+
+## Extracted feature settings
+N_FEATS = 3
 
 ## Oscillation Band Settings
 BANDS = Bands({'theta' : [2, 7],
@@ -22,18 +27,19 @@ FOOOF_SETTINGS = FOOOFSettings(
     max_n_peaks=6,
     min_peak_height=0.075,
     peak_threshold=1,
-    aperiodic_mode='fixed')
+    aperiodic_mode='fixed',
+)
 
 
-# DATASET SPECIFIC INFORMATION
+## DATASET SPECIFIC INFORMATION
 RTPB_INFO = {
 
-    'SUBJ_NUMS' : list(range(3502, 3516)),
+    'SUBJ_NUMS' : list(range(3501, 3516)),
 
     'NUM_REST' : 2,
     'NUM_TRIAL' : 10,
 
-    'REST_EVENT_ID' : {'Start Labelling Block' : 2000},
+    'REST_EVENT_ID' : {'StartRest' : 2000},
     'TRIAL_EVENT_ID' : {'Start Block' : 3000},
     'BLOCK_EVS' : ['Start Labelling Block', 'Start Block'],
 
