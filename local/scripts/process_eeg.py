@@ -24,11 +24,13 @@ from db import EEGDB
 ## SETTINGS ##
 
 # Set Group to Run
-GROUP = 'rtPB' # {'rtPB', 'PBA'}
+GROUP = 'PBA' # {'rtPB', 'PBA'}
 
 # Processing Options
-RUN_ICA = True
+RUN_ICA = False
 RUN_AUTOREJECT = False
+RUN_FOOOF = False
+EXTRACT_TIMESERIES = True
 
 ###################################################################################################
 ###################################################################################################
@@ -44,142 +46,145 @@ if GROUP == 'PBA':
 
 # Unpack dataset information
 SUBJ_NUMS = DATASET_INFO['SUBJ_NUMS']
-EV_DICT = DATASET_INFO['EV_DICT']
-REST_EVENT_ID = DATASET_INFO['REST_EVENT_ID']
-TRIAL_EVENT_ID = DATASET_INFO['TRIAL_EVENT_ID']
-BLOCK_EVS = DATASET_INFO['BLOCK_EVS']
+REST_EVENT_ID = list(DATASET_INFO['REST_EVENT_ID'].keys())[0]
+TRIAL_EVENT_ID = list(DATASET_INFO['TRIAL_EVENT_ID'].keys())[0]
 
 ###################################################################################################
 ###################################################################################################
 
 def main():
 
-    # Initialize FOOOFGroup to use for fitting
-    fg = FOOOFGroup(*FOOOF_SETTINGS, verbose=False)
+    if RUN_FOOOF:
 
-    # Save out a settings file
-    fg.save(file_name=GROUP + '_fooof_group_settings',
-            file_path=PATHS.fooofs_path, save_settings=True)
+        # Initialize FOOOFGroup to use for fitting
+        fg = FOOOFGroup(*FOOOF_SETTINGS, verbose=False)
 
-    for sub in SUBJ_NUMS:
+        # Save out a settings file
+        fg.save(file_name=GROUP + '_fooof_group_settings',
+                file_path=PATHS.fooofs_path, save_settings=True)
 
-        print('Current Subject' + str(sub))
+    if EXTRACT_TIMESERIES:
 
-        # load subject data
+        extracted_data = np.zeros(shape=[len(SUBJ_NUMS), N_CHANNELS, ((TMAX-TMIN) * FS) + 1])
+
+    for sub_ind, sub in enumerate(SUBJ_NUMS):
+
+        print('\n\nRUNNING SUBJECT:  ' + str(sub) + '\n\n')
+
         subj_fname = str(sub)+ "_resampled.set"
         full_path = os.path.join(PATHS.data_path, subj_fname)
-        path_check = Path(full_path)
 
-        if path_check.is_file():
+        if not os.path.exists(full_path):
+            print('Current Subject' + str(sub)+ ' does not exist')
+            print('Path: ', full_path)
+            continue
 
-            #eeg_data = mne.io.read_raw_eeglab(full_path, event_id_func=None, preload=True)
-            eeg_data = mne.io.read_raw_eeglab(full_path, preload=True)
-            evs = mne.io.eeglab.read_events_eeglab(full_path, EV_DICT)
+        # Load data
+        eeg_data = mne.io.read_raw_eeglab(full_path, preload=True)
 
-            new_evs = np.empty(shape=(0, 3))
+        # Get events from annotations
+        events, event_id = mne.events_from_annotations(eeg_data, verbose=False)
 
-            for ev_label in BLOCK_EVS:
-                ev_code = EV_DICT[ev_label]
-                temp = evs[evs[:, 2] == ev_code]
-                new_evs = np.vstack([new_evs, temp])
+        # Set montage
+        montage = mne.channels.make_standard_montage('standard_1020')
+        eeg_data.set_montage(montage)
 
-            eeg_data.add_events(new_evs)
+        # Set EEG to average reference
+        eeg_data.set_eeg_reference()
 
-            # Set EEG to average reference
-            eeg_data.set_eeg_reference()
+        ## PRE-PROCESSING: ICA
+        if RUN_ICA:
 
-            ## PRE-PROCESSING: ICA
-            if RUN_ICA:
+            # ICA settings
+            method = 'fastica'
+            n_components = 0.99
+            random_state = 47
+            reject = {'eeg' : 20e-4}
 
-                # ICA settings
-                method = 'fastica'
-                n_components = 0.99
-                random_state = 47
-                reject = {'eeg': 20e-4}
+            # Initialize ICA object
+            ica = ICA(n_components=n_components, method=method, random_state=random_state)
 
-                # Initialize ICA object
-                ica = ICA(n_components=n_components, method=method, random_state=random_state)
+            # High-pass filter data for running ICA
+            eeg_data.filter(l_freq=1., h_freq=None, fir_design='firwin');
 
-                # High-pass filter data for running ICA
-                eeg_data.filter(l_freq=1., h_freq=None, fir_design='firwin');
+            # Fit ICA
+            ica.fit(eeg_data, reject=reject)
 
-                # Fit ICA
-                ica.fit(eeg_data, reject=reject)
+            # Find components to drop, based on correlation with EOG channels
+            drop_inds = []
+            for chi in EOG_CHS:
+                inds, scores = ica.find_bads_eog(eeg_data, ch_name=chi, threshold=2.5,
+                                                 l_freq=1, h_freq=10, verbose=False)
+                drop_inds.extend(inds)
+            drop_inds = list(set(drop_inds))
 
-                # Find components to drop, based on correlation with EOG channels
-                drop_inds = []
-                for chi in EOG_CHS:
-                    inds, scores = ica.find_bads_eog(eeg_data, ch_name=chi, threshold=2.5,
-                                                     l_freq=1, h_freq=10, verbose=False)
-                    drop_inds.extend(inds)
-                drop_inds = list(set(drop_inds))
+            # Set which components to drop, and collect record of this
+            ica.exclude = drop_inds
 
-                # Set which components to drop, and collect record of this
-                ica.exclude = drop_inds
+            # Save out ICA solution
+            #ica.save(pjoin(PATHS.ica_path, str(sub) + '-ica.fif'))
 
-                # Save out ICA solution
-                ica.save(pjoin(PATHS.ica_path, str(sub) + '-ica.fif'))
+            # Apply ICA to data
+            eeg_data = ica.apply(eeg_data);
 
-                # Apply ICA to data
-                eeg_data = ica.apply(eeg_data);
+        ## EPOCH BLOCKS
+        rest_epochs = mne.Epochs(eeg_data, events=events, event_id=event_id[REST_EVENT_ID],
+                                 tmin=TMIN, tmax=TMAX, baseline=None, preload=True)
+        trial_epochs = mne.Epochs(eeg_data, events=events, event_id=event_id[TRIAL_EVENT_ID],
+                                  tmin=TMIN, tmax=TMAX, baseline=None, preload=True)
 
-            ## EPOCH BLOCKS
-            events = mne.find_events(eeg_data)
-            rest_epochs = mne.Epochs(eeg_data, events=events, event_id=REST_EVENT_ID,
-                                     tmin=5, tmax=125, baseline=None, preload=True)
-            trial_epochs = mne.Epochs(eeg_data, events=events, event_id=TRIAL_EVENT_ID,
-                                      tmin=5, tmax=125, baseline=None, preload=True)
+        ## PRE-PROCESSING: AUTO-REJECT
+        if RUN_AUTOREJECT:
 
-            ## PRE-PROCESSING: AUTO-REJECT
-            if RUN_AUTOREJECT:
+            # Initialize and run autoreject across epochs
+            ar = AutoReject(n_jobs=4, verbose=False)
+            epochs, rej_log = ar.fit_transform(epochs, True)
 
-                # Initialize and run autoreject across epochs
-                ar = AutoReject(n_jobs=4, verbose=False)
-                epochs, rej_log = ar.fit_transform(epochs, True)
+            # Drop same trials from filtered data
+            rest_epochs.drop(rej_log.bad_epochs)
+            trial_epochs.drop(rej_log.bad_epochs)
 
-                # Drop same trials from filtered data
-                rest_epochs.drop(rej_log.bad_epochs)
-                trial_epochs.drop(rej_log.bad_epochs)
+            # Collect list of dropped trials
+            dropped_trials[s_ind, 0:sum(rej_log.bad_epochs)] = np.where(rej_log.bad_epochs)[0]
 
-                # Collect list of dropped trials
-                dropped_trials[s_ind, 0:sum(rej_log.bad_epochs)] = np.where(rej_log.bad_epochs)[0]
-
-            # Set montage
-            chs = mne.channels.read_montage('standard_1020', rest_epochs.ch_names[:-1])
-            rest_epochs.set_montage(chs)
-            trial_epochs.set_montage(chs)
-
-            # Calculate power spectra
-            rest_psds, rest_freqs = mne.time_frequency.psd_welch(rest_epochs,
-                fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
-            trial_psds, trial_freqs = mne.time_frequency.psd_welch(trial_epochs,
-                fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
+        ## FOOOF the Data
+        if RUN_FOOOF:
 
             # Setting frequency range
             freq_range = [3, 30]
 
-            ## FOOOF the Data
+            # REST DATA - Calculate power spectra & fit spectral models
+            rest_psds, rest_freqs = mne.time_frequency.psd_welch(rest_epochs,
+                fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
 
-            # Rest Data
             for ind, entry in enumerate(rest_psds):
                 rest_fooof_psds = rest_psds[ind, :, :]
                 fg.fit(rest_freqs, rest_fooof_psds, freq_range)
-                fg.save(file_name= str(sub) + 'fooof_group_results' + str(ind) ,
+                fg.save(file_name=str(sub) + 'fooof_group_results' + str(ind) ,
                         file_path=PATHS.fooofs_rest_path, save_results=True)
 
-            # Trial Data
+            # TRIAL DATA - Calculate power spectra & fit spectral models
+            trial_psds, trial_freqs = mne.time_frequency.psd_welch(trial_epochs,
+                fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
+
             for ind, entry in enumerate(trial_psds):
                 trial_fooof_psds = trial_psds[ind, :, :]
                 fg.fit(trial_freqs, trial_fooof_psds, freq_range)
-                fg.save(file_name= str(sub) + 'fooof_group_results' + str(ind),
+                fg.save(file_name=str(sub) + 'fooof_group_results' + str(ind),
                         file_path=PATHS.fooofs_trial_path, save_results=True)
 
-            print('Subject Saved')
+            print('Subject FOOOF results saved')
 
-        else:
+        print('\n\nCOMPLETED SUBJECT:  ' + str(sub) + '\n\n')
 
-            print('Current Subject' + str(sub)+ ' does not exist')
-            print(path_check)
+        # Extract a group collection of time series
+        if EXTRACT_TIMESERIES:
+
+            extracted_data[sub_ind, :, :] = rest_epochs._data[0, :, :]
+
+    # When done all subjects, save out extracted data
+    if EXTRACT_TIMESERIES:
+        np.save(GROUP + '_extracted_block', extracted_data)
 
     print('Pre-processing Complete')
 
