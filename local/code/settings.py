@@ -21,7 +21,18 @@ BANDS = Bands({'theta' : [2, 7],
                'alpha' : [8, 14],
                'beta' : [15, 30]})
 
+## PSD Settings
+PSD_SETTINGS = {
+    'method' : 'welch',
+    'fmin' : 1.,
+    'fmax' : 50.,
+    'n_fft' : 2000,
+    'n_overlap' : 250,
+    'n_per_seg' : 500,
+}
+
 ## FOOOF SETTINGS
+FIT_RANGE = (3, 30)
 FOOOF_SETTINGS = FOOOFSettings(
     peak_width_limits=[1, 6],
     max_n_peaks=6,

@@ -29,7 +29,8 @@ GROUP = 'PBA' # {'rtPB', 'PBA'}
 # Processing Options
 RUN_ICA = False
 RUN_AUTOREJECT = False
-RUN_FOOOF = False
+COMPUTE_PSDS = False
+RUN_FOOOF = False                 # `COMPUTE_PSDS` has to be True to be able to run fooof
 EXTRACT_TIMESERIES = True
 
 ###################################################################################################
@@ -147,46 +148,45 @@ def main():
             # Collect list of dropped trials
             dropped_trials[s_ind, 0:sum(rej_log.bad_epochs)] = np.where(rej_log.bad_epochs)[0]
 
-        ## FOOOF the Data
+        ## Compute Power Spectra
+        if COMPUTE_PSDS:
+
+            spectra_rest = rest_epochs.compute_psd(**PSD_SETTINGS)
+            spectra_trial = trial_epochs.compute_psd(**PSD_SETTINGS)
+
+            # ToDo: add saving
+
+        ## Fit spectral models to the computed power spectra
         if RUN_FOOOF:
 
-            # Setting frequency range
-            freq_range = [3, 30]
-
-            # REST DATA - Calculate power spectra & fit spectral models
-            rest_psds, rest_freqs = mne.time_frequency.psd_welch(rest_epochs,
-                fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
-
+            rest_psds = np.squeeze(spectra_rest._data[0, :, :])
             for ind, entry in enumerate(rest_psds):
                 rest_fooof_psds = rest_psds[ind, :, :]
-                fg.fit(rest_freqs, rest_fooof_psds, freq_range)
+                fg.fit(spectra_rest.freqs, rest_fooof_psds, FIT_RANGE)
                 fg.save(file_name=str(sub) + 'fooof_group_results' + str(ind) ,
                         file_path=PATHS.fooofs_rest_path, save_results=True)
 
-            # TRIAL DATA - Calculate power spectra & fit spectral models
-            trial_psds, trial_freqs = mne.time_frequency.psd_welch(trial_epochs,
-                fmin=1., fmax=50., n_fft=2000, n_overlap=250, n_per_seg=500)
-
+            rest_psds = np.squeeze(spectra_trial._data[0, :, :])
             for ind, entry in enumerate(trial_psds):
                 trial_fooof_psds = trial_psds[ind, :, :]
-                fg.fit(trial_freqs, trial_fooof_psds, freq_range)
+                fg.fit(spectra_trial.freqs, trial_fooof_psds, FIT_RANGE)
                 fg.save(file_name=str(sub) + 'fooof_group_results' + str(ind),
                         file_path=PATHS.fooofs_trial_path, save_results=True)
 
             print('Subject FOOOF results saved')
-
-        print('\n\nCOMPLETED SUBJECT:  ' + str(sub) + '\n\n')
 
         # Extract a group collection of time series
         if EXTRACT_TIMESERIES:
 
             extracted_data[sub_ind, :, :] = rest_epochs._data[0, :, :]
 
+        print('\n\nCOMPLETED SUBJECT:  ' + str(sub) + '\n\n')
+
     # When done all subjects, save out extracted data
     if EXTRACT_TIMESERIES:
         np.save(GROUP + '_extracted_block', extracted_data)
 
-    print('Pre-processing Complete')
+    print('\nProcessing Complete!')
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
 """Analyzing local EEG data for EEGMapping project."""
 
-import fnmatch
 import pickle
 from pathlib import Path
 from os.path import join as pjoin
