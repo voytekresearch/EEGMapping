@@ -6,7 +6,7 @@ from pathlib import Path
 ###################################################################################################
 ###################################################################################################
 
-DEFAULT_PATH = "/Users/tom/Documents/Data/03-External/Childmind"
+DEFAULT_PATH = "/Volumes/Data/02-External/EEG/Childmind"
 
 class EEGDB(object):
     """Class to hold database information for ChildMind data.

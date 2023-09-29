@@ -13,16 +13,20 @@ import sys
 sys.path.append('../code')
 from db import EEGDB
 from utils import save_pickle
+from settings import *
 
 ###################################################################################################
 ###################################################################################################
 
-# Settings
-S_RATE = 500
+## SCRIPT SETTINGS
 
-# New skip subjects
-SKIP_SUBJS = ['A00055628', 'A00062219', 'A00055623', 'A00056716',
-              'A00056733', 'A00054866', 'A00054488']
+# Run options
+SKIP_DONE = False
+
+# Processing Options
+COMPUTE_PSDS = False
+RUN_FOOOF = False                 # `COMPUTE_PSDS` has to be True to be able to run fooof
+EXTRACT_TIMESERIES = True
 
 ###################################################################################################
 ###################################################################################################
@@ -46,10 +50,25 @@ def main():
     # Set collection containers for info across subjects
     all_flat_chans = {}
 
-    for cur_subj in subjs:
+    if RUN_FOOOF:
+
+        # Initialize FOOOFGroup to use for fitting
+        fg = FOOOFGroup(*FOOOF_SETTINGS, verbose=False)
+
+        # Save out a settings file
+        fg.save(file_name=GROUP + '_fooof_group_settings',
+                file_path=PATHS.fooofs_path, save_settings=True)
+
+    if EXTRACT_TIMESERIES:
+        n_timepoints_extracted = ((EC_TIMES['tmax']-EC_TIMES['tmin']) * FS) + 1
+        extracted_data = np.zeros(\
+            #shape=[len(subjs) - len(SKIP_SUBJS), 5, N_CHANNELS, n_timepoints_extracted])
+            shape=[len(subjs), 5, N_CHANNELS, n_timepoints_extracted])
+
+    for sub_ind, cur_subj in enumerate(subjs):
 
         # Print status
-        print('\n\nRUNNING SUBJECT: ', str(cur_subj))
+        print('\n\nRUNNING SUBJECT (#{}): {}'.format(sub_ind, cur_subj))
 
         # Skip specified subjects
         if cur_subj in SKIP_SUBJS:
@@ -57,7 +76,7 @@ def main():
             continue
 
         # Skip subject if PSD already calculated
-        if cur_subj in done:
+        if SKIP_DONE and cur_subj in done:
             print('\t\tSUBJECT ALREADY RUN: ', str(cur_subj), '\n\n')
             continue
 
@@ -90,19 +109,19 @@ def main():
         # Load data file
         data = np.loadtxt(data_fname, delimiter=',')
 
-        # NEW: Create channel montage
+        # Create channel montage
         montage = mne.channels.make_standard_montage('GSN-HydroCel-129')
 
         # Create the info structure needed by MNE
-        info = mne.create_info(ch_labels, S_RATE, 'eeg')
+        info = mne.create_info(ch_labels, FS, 'eeg')
         info.set_montage(montage)
 
         # Create the MNE Raw data object
         raw = mne.io.RawArray(data, info)
 
         # Create a stim channel
-        stim_info = mne.create_info(['stim'], S_RATE, 'stim')
-        stim_raw = mne.io.RawArray(np.zeros(shape=[1, len(raw._times)]), stim_info)
+        stim_info = mne.create_info(['stim'], FS, 'stim')
+        stim_raw = mne.io.RawArray(np.zeros(shape=[1, len(raw.times)]), stim_info)
 
         # Add stim channel to data object
         raw.add_channels([stim_raw], force_update_info=True)
@@ -151,31 +170,47 @@ def main():
         eeg_chans = mne.pick_types(raw.info, meg=False, eeg=True)
 
         # Epoch resting eeg data events
-        eo_epochs = mne.Epochs(raw, events=data_evs, event_id={'EO': 20}, tmin=2, tmax=18,
+        eo_epochs = mne.Epochs(raw, events=data_evs, event_id={'EO': 20},
+                               tmin=EO_TIMES['tmin'], tmax=EO_TIMES['tmax'],
                                baseline=None, picks=eeg_chans, preload=True)
-        ec_epochs = mne.Epochs(raw, events=data_evs, event_id={'EC': 30}, tmin=5, tmax= 35,
+        ec_epochs = mne.Epochs(raw, events=data_evs, event_id={'EC': 30},
+                               tmin=EC_TIMES['tmin'], tmax=EC_TIMES['tmax'],
                                baseline=None, picks=eeg_chans, preload=True)
 
-        # Calculate PSDs - EO Data
-        eo_psds, eo_freqs = mne.time_frequency.psd_welch(eo_epochs, fmin=2., fmax=40., n_fft=1000,
-                                                         n_overlap=250, verbose=False)
+        if COMPUTE_PSDS:
 
-        # Calculate PSDs - EC Data
-        ec_psds, ec_freqs = mne.time_frequency.psd_welch(ec_epochs, fmin=2., fmax=40., n_fft=1000,
-                                                         n_overlap=250, verbose=False)
+            spectra_eo = eo_epochs.compute_psd(**PSD_SETTINGS)
+            spectra_ec = ec_epochs.compute_psd(**PSD_SETTINGS)
 
-        # Save out PSDs
-        np.savez(pjoin(db.psd_path, str(cur_subj) + '_ec_psds.npz'),
-                 ec_freqs, ec_psds, np.array(ec_epochs.ch_names))
-        np.savez(pjoin(db.psd_path, str(cur_subj) + '_eo_psds.npz'),
-                 eo_freqs, eo_psds, np.array(eo_epochs.ch_names))
+            # ToDo - check & fix
+            # Save out PSDs
+            # np.savez(pjoin(db.psd_path, str(cur_subj) + '_ec_psds.npz'),
+            #          ec_freqs, ec_psds, np.array(ec_epochs.ch_names))
+            # np.savez(pjoin(db.psd_path, str(cur_subj) + '_eo_psds.npz'),
+            #          eo_freqs, eo_psds, np.array(eo_epochs.ch_names))
 
-        # Print status
-        print('\tPSD DATA SAVED FOR SUBJ: ', str(cur_subj), '\n\n')
+            # Print status
+            print('\tPSD DATA SAVED FOR SUBJ: ', str(cur_subj), '\n\n')
+
+        # TODO:
+        if RUN_FOOOF:
+            pass
+
+        # Extract a group collection of time series
+        if EXTRACT_TIMESERIES:
+
+            n_blocks = ec_epochs._data.shape[0]
+            n_blocks = 5 if n_blocks > 5 else n_blocks
+            extracted_data[sub_ind, 0:n_blocks, :, :] = ec_epochs._data[0:n_blocks, :, :]
 
     # Save out any group level metadata
-    save_pickle(all_flat_chans, 'childmind_interp_chs.p', db.data_path)
+    #save_pickle(all_flat_chans, 'childmind_interp_chs.p', db.data_path)
 
+    # When done all subjects, save out extracted data
+    if EXTRACT_TIMESERIES:
+        np.save('MIPDB_extracted_block', extracted_data)
+
+    print('\nProcessing Complete!')
 
 if __name__ == "__main__":
     main()
